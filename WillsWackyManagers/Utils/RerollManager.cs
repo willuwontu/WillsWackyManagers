@@ -24,7 +24,7 @@ namespace WillsWackyManagers.Utils
         /// <summary>
         /// The card category for cards that should not be given out after a table flip.
         /// </summary>
-        public CardCategory NoFlip = CustomCardCategories.instance.CardCategory("NoFlip");
+        public CardCategory NoFlip { get; private set; } = CustomCardCategories.instance.CardCategory("NoFlip");
         
         /// <summary>
         /// The player responsible for the tableflip. Used to add the table flip card to the player.
@@ -37,7 +37,7 @@ namespace WillsWackyManagers.Utils
         public bool tableFlipped;
 
         /// <summary>
-        /// The table flip card itself. It's automatically given out to the flipping player aftr a table flip.
+        /// The table flip card itself. It's automatically given out to the flipping player after a table flip.
         /// </summary>
         public CardInfo tableFlipCard;
 
@@ -67,7 +67,7 @@ namespace WillsWackyManagers.Utils
         /// <summary>
         /// Initiates a table flip for all players.
         /// </summary>
-        /// <param name="addCard">Whether the flipping player (if one exists) shoudl be given the Table Flip Card (if it exists).</param>
+        /// <param name="addCard">Whether the flipping player (if one exists) should be given the Table Flip Card (if it exists).</param>
         /// <returns></returns>
         public IEnumerator FlipTable(bool addCard = true)
         {

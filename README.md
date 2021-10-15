@@ -19,21 +19,21 @@ The `curseInteractionCategory` can be used to denote cards that should only show
 
 ### instance
 ```cs
-CurseManager instance { get; private set; }
+CurseManager instance { get;}
 ```
 #### Description
 A static reference of the class for accessibility from within static functions.
 
 ### curseCategory
 ```cs
-CardCategory curseCategory
+CardCategory curseCategory { get;}
 ```
 #### Description
 The card category for every curse. If not utilized, curses may show up for regular picking.
 
 ### curseInteractionCategory
 ```cs
-CardCategory curseInteractionCategory
+CardCategory curseInteractionCategory { get;}
 ```
 #### Description
 The card category for cards that interacted with cursed players. When utilized, cards with it will only show up when a player has a curse.
@@ -91,6 +91,20 @@ Registers a card as a curse with the curse manager. The card still needs to appl
 CustomCard.BuildCard<MyCurse>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
 ```
 
+### GetRaw()
+```cs
+CardInfo[] GetRaw()
+```
+#### Description
+Registers a card as a curse with the curse manager. The card still needs to apply `curseCategory` on its own.
+
+#### Parameters
+
+#### Example Usage
+```CSHARP
+var curse = CurseManager.instance.GetRaw();
+```
+
 ### HasCurse()
 ```cs
 bool HasCurse(Player player)
@@ -125,3 +139,119 @@ var isCurse = CurseManager.instance.IsCurse(card);
 </details>
 
 
+## RerollManager
+
+This manager provides the various utilities for rerolling a player's cards.
+
+<details>
+<summary>Properties</summary>
+
+### instance
+```cs
+RerollManager instance { get;}
+```
+#### Description
+A static reference of the class for accessibility from within static functions.
+
+### NoFlip
+```cs
+CardCategory NoFlip { get;}
+```
+#### Description
+The card category for cards that should not be given out after a table flip.
+
+### flippingPlayer
+```cs
+Player flippingPlayer
+```
+#### Description
+The player responsible for the tableflip. Used to add the table flip card to the player.
+
+### tableFlipped
+```cs
+bool tableFlipped
+```
+#### Description
+When set to true, a table flip will be initiated at the next end of a player's pick. Initiate the `FlipTable()` method if you wish to flip before then.
+
+### tableFlipCard
+```cs
+CardInfo tableFlipCard
+```
+#### Description
+The table flip card itself. It's automatically given out to the flipping player after a table flip.
+
+### rerollPlayers
+```cs
+List<Player> rerollPlayers
+```
+#### Description
+A list of players to reroll when the next reroll is initiated.
+
+### reroll
+```cs
+bool reroll
+```
+#### Description
+When set to true, a reroll will be initiated at the next end of a player's pick. Initiate the `Reroll()` method if you wish to reroll before then.
+
+### rerollCard
+```cs
+CardInfo rerollCard
+```
+#### Description
+The reroll card itself. It's automatically given out to the rerolling player after a table flip.
+</details>
+
+<details>
+<summary>Functions</summary>
+
+### FlipTable()
+```cs
+IEnumerator FlipTable(bool addCard = true)
+```
+#### Description
+Initiates a table flip for all players.
+
+#### Parameters
+- *bool* `addCard` whether the flipping player (if one exists) shoul be given the Table Flip Card (if it exists).
+
+#### Example Usage
+```CSHARP
+
+
+```
+
+### InitiateRerolls()
+```cs
+IEnumerator InitiateRerolls(bool addCard = true)
+```
+#### Description
+Initiates any rerolls in the queue.
+
+#### Parameters
+- *bool* `addCard` whether a player should be given the Reroll card after they reroll.
+
+#### Example Usage
+```CSHARP
+
+
+```
+
+### Reroll()
+```cs
+IEnumerator Reroll(Player player, bool addCard = true)
+```
+#### Description
+Initiates any rerolls in the queue.
+
+#### Parameters
+- *Player* `player` the player whose cards to reroll
+- *bool* `addCard` whether the player should be given the Reroll card afterwards.
+
+#### Example Usage
+```CSHARP
+
+
+```
+</details>
