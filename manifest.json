@@ -2,9 +2,9 @@
 	"name":"WillsWackyManagers",
 	"author_name":"willuwontu",
     "version_number":"1.0.0",
-	"website_url":"https://github.com/willuwontu/wills-wacky-cards",
-	"displayName":"Will's Wacky Cards",
-	"description":"Small addition of cards to the game.",
+	"website_url":"https://github.com/willuwontu/WillsWackyManagers",
+	"displayName":"Will's Wacky Managers",
+	"description":"Various managers for community usage.",
 	"dependencies": [
 	    "willis81808-UnboundLib-2.6.2",
 		"willis81808-MMHook-1.0.0",
