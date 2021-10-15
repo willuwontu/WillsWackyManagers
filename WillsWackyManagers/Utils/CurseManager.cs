@@ -24,12 +24,12 @@ namespace WillsWackyManagers.Utils
         /// <summary>
         /// The card category for all curses.
         /// </summary>
-        public CardCategory curseCategory = CustomCardCategories.instance.CardCategory("Curse");
+        public CardCategory curseCategory { get; private set; }  = CustomCardCategories.instance.CardCategory("Curse");
 
         /// <summary>
         /// The card category for cards that interact with cursed players.
         /// </summary>
-        public CardCategory curseInteractionCategory = CustomCardCategories.instance.CardCategory("Cursed");
+        public CardCategory curseInteractionCategory { get; private set; }  = CustomCardCategories.instance.CardCategory("Cursed");
 
         private void Start()
         {

@@ -1,7 +1,12 @@
 ﻿using BepInEx;
 using UnboundLib;
 using UnboundLib.Cards;
-using WillsWackyManagers;
+using UnboundLib.Utils;
+using UnboundLib.GameModes;
+using UnityEngine;
+using WillsWackyManagers.Utils;
+using System.Collections;
+using System.Collections.Generic;
 using HarmonyLib;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 
@@ -29,7 +34,62 @@ namespace WillsWackyManagers
         }
         void Start()
         {
+            gameObject.GetOrAddComponent<RerollManager>();
+            gameObject.GetOrAddComponent<CurseManager>();
 
+            GameModeManager.AddHook(GameModeHooks.HookGameStart, GameStart);
+            GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, PlayerPickStart);
+            GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, PlayerPickEnd);
+        }
+
+        IEnumerator GameStart(IGameModeHandler gm)
+        {
+
+            foreach (var player in PlayerManager.instance.players)
+            {
+                if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseCategory))
+                {
+                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
+                }
+                if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
+                {
+                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
+                }
+            }
+
+            yield break;
+        }
+
+        IEnumerator PlayerPickStart(IGameModeHandler gm)
+        {
+            foreach (var player in PlayerManager.instance.players)
+            {
+                if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
+                {
+                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
+                }
+                if (CurseManager.instance.HasCurse(player))
+                {
+                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
+                    UnityEngine.Debug.Log($"[WWM] Player {player.playerID} is available for curse interaction effects");
+                }
+            }
+            yield break;
+        }
+
+        IEnumerator PlayerPickEnd(IGameModeHandler gm)
+        {
+            if (RerollManager.instance.tableFlipped)
+            {
+                StartCoroutine(RerollManager.instance.FlipTable());
+            }
+            yield return new WaitUntil(() => RerollManager.instance.tableFlipped == false);
+            if (RerollManager.instance.reroll)
+            {
+                StartCoroutine(RerollManager.instance.InitiateRerolls());
+            }
+            yield return new WaitUntil(() => RerollManager.instance.reroll == false);
+            yield break;
         }
     }
 }
