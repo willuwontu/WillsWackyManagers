@@ -19,7 +19,7 @@ The `curseInteractionCategory` can be used to denote cards that should only show
 
 ### instance
 ```cs
-CurseManager instance
+CurseManager instance { get; private set; }
 ```
 #### Description
 A static reference of the class for accessibility from within static functions.
