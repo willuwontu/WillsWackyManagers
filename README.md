@@ -61,6 +61,8 @@ var curse = CurseManager.instance.RandomCurse(player);
 ### CursePlayer()
 ```cs
 void CursePlayer(Player player)
+```
+```cs
 void CursePlayer(Player player, Action<CardInfo> callback)
 ```
 #### Description
