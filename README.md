@@ -3,7 +3,11 @@
 Provides 2 different managers for the community to use:
 - CurseManager
 - RerollManager
+----
+### v 1.0.1
+- Fixed an error in reroll's logic that would cause it to stop after rerolling a player.
 
+----
 ## CurseManager
 
 This manager provides the various utilities needed for using curses.
