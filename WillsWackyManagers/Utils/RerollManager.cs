@@ -163,16 +163,17 @@ namespace WillsWackyManagers.Utils
         /// <returns></returns>
         public IEnumerator InitiateRerolls(bool addCard = true)
         {
-            List<Player> rerolledPlayers = new List<Player>();
-            foreach (var player in rerollPlayers)
+            var rerollers = rerollPlayers.ToArray();
+            var rerolled = new List<Player>();
+            foreach (var reroller in rerollers)
             {
-                if (!rerolledPlayers.Contains(player))
+                if (!rerolled.Contains(reroller))
                 {
-                    rerolledPlayers.Add(player);
-                    yield return Reroll(player);
+                    rerolled.Add(reroller);
+                    yield return Reroll(reroller);
                 }
             }
-
+            
             rerollPlayers.Clear();
             reroll = false;
             yield return null;
@@ -245,7 +246,7 @@ namespace WillsWackyManagers.Utils
                         ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
                     }
 
-                    yield return WaitFor.Frames(20);
+                    yield return WaitFor.Frames(25);
                 }
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
                 UnityEngine.Debug.Log($"[WWC][Debugging] Finished adding cards.");
@@ -256,7 +257,7 @@ namespace WillsWackyManagers.Utils
                     ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, rerollCard, false, "", 2f, 2f, true);
                     ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, rerollCard);
                 }
-                yield return WaitFor.Frames(20);
+                yield return WaitFor.Frames(25);
             }
 
             yield return null;
