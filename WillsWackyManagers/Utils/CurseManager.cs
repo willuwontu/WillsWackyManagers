@@ -5,6 +5,7 @@ using UnboundLib.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
 using System;
+using BepInEx.Bootstrap;
 
 namespace WillsWackyManagers.Utils
 {
@@ -20,6 +21,7 @@ namespace WillsWackyManagers.Utils
         private List<CardInfo> curses = new List<CardInfo>();
         private List<CardInfo> activeCurses = new List<CardInfo>();
         private System.Random random = new System.Random();
+        private bool deckCustomizationLoaded = false;
 
         /// <summary>
         /// The card category for all curses.
@@ -34,6 +36,18 @@ namespace WillsWackyManagers.Utils
         private void Start()
         {
             instance = this;
+
+            this.ExecuteAfterFrames(50, () =>
+            {
+                foreach (var plugin in Chainloader.PluginInfos)
+                {
+                    if (plugin.Key == "pykess.rounds.plugins.deckcustomization")
+                    {
+                        deckCustomizationLoaded = true;
+                        break;
+                    }
+                }
+            });
         }
 
         private void CheckCurses()
@@ -55,8 +69,60 @@ namespace WillsWackyManagers.Utils
             CheckCurses();
 
             ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == curseCategory);
-            var curse = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, null, null, null, null, null, null, null, this.Condition);
+            var availableChoices = activeCurses.Where((cardInfo) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, cardInfo)).ToArray();
             ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(curseCategory);
+            CardInfo curse = null;
+
+            var totalWeight = 0f;
+            foreach (var cardInfo in availableChoices)
+            {
+                switch (cardInfo.rarity)
+                {
+                    case CardInfo.Rarity.Rare:
+                        totalWeight += 10f;
+                        break;
+                    case CardInfo.Rarity.Uncommon:
+                        totalWeight += 4f;
+                        break;
+                    case CardInfo.Rarity.Common:
+                        totalWeight += 1f;
+                        break;
+                }
+            }
+
+            var chosenWeight = UnityEngine.Random.Range(0f, totalWeight);
+
+            //UnityEngine.Debug.Log($"[WWC][Debugging] {chosenWeight}/{totalWeight} weight chosen.");
+
+            foreach (var cardInfo in availableChoices)
+            {
+                switch (cardInfo.rarity)
+                {
+                    case CardInfo.Rarity.Rare:
+                        chosenWeight -= 10f;
+                        break;
+                    case CardInfo.Rarity.Uncommon:
+                        chosenWeight -= 4f;
+                        break;
+                    case CardInfo.Rarity.Common:
+                        chosenWeight -= 1f;
+                        break;
+                }
+
+                //UnityEngine.Debug.Log($"[WWC][Debugging] {cardInfo.cardName} reduced weight to {chosenWeight}.");
+
+                if (chosenWeight <= 0f)
+                {
+                    curse = cardInfo;
+                    break;
+                }
+            }
+
+            if (!curse)
+            {
+                UnityEngine.Debug.Log($"[WWC][Debugging] curse didn't exist, getting one now.");
+                curse = activeCurses.ToArray()[random.Next(activeCurses.Count)];
+            }
 
             if (activeCurses.Contains(curse))
             {
@@ -72,7 +138,19 @@ namespace WillsWackyManagers.Utils
 
         private bool Condition(CardInfo card, Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            return card.categories.Contains(curseCategory);
+            bool result = false;
+
+            if (card)
+            {
+                UnityEngine.Debug.Log($"Evaluating {card.cardName}");
+                result = activeCurses.Contains(card);
+            }
+            else
+            {
+                UnityEngine.Debug.Log($"NO CARD INFO PASSED TO CONDITION");
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -92,8 +170,8 @@ namespace WillsWackyManagers.Utils
         public void CursePlayer(Player player, Action<CardInfo> callback)
         {
             var curse = RandomCurse(player);
-            ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, curse, false, "", 2f, 2f, true);
             UnityEngine.Debug.Log($"[WWC][Curse Manager] Player {player.playerID} cursed with {curse.cardName}.");
+            ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, curse, false, "", 2f, 2f, true);
             callback?.Invoke(curse);
         }
 
