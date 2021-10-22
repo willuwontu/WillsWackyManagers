@@ -5,7 +5,11 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
-### v 1.0.1
+### v 1.0.3
+- Added 3 new functions to the curse manager and documented them.
+
+----
+### v 1.0.2
 - Fixed an issue where a curse may not always return when cursing someone.
 
 ----
@@ -146,6 +150,40 @@ Returns true if the card is a registered curse.
 ```CSHARP
 var card = PlayerManager.instance.players[0].data.currentCards[0];
 var isCurse = CurseManager.instance.IsCurse(card);
+```
+
+### RemoveAllCurses()
+```cs
+void RemoveAllCurses(Player player)
+```
+```cs
+void RemoveAllCurses(Player player, Action<CardInfo> callback)
+```
+#### Description
+Removes all curses on the target player.
+
+#### Parameters
+- *Player* `player` the player to remove curses from.
+- *Action<CardInfo>* `callback` an optional action to run with the card info of the removed curse.
+
+#### Example Usage
+```CSHARP
+
+```
+
+### GetAllCursesOnPlayer()
+```cs
+bool CardInfo[] GetAllCursesOnPlayer(Player player)
+```
+#### Description
+Returns true if the card is a registered curse.
+
+#### Parameters
+- *Player* `player` the player whose curses to get.
+
+#### Example Usage
+```CSHARP
+
 ```
 </details>
 

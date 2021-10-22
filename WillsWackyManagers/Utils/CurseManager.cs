@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using UnboundLib;
 using UnboundLib.Utils;
@@ -55,7 +56,7 @@ namespace WillsWackyManagers.Utils
             activeCurses = curses.Intersect(CardManager.cards.Values.ToArray().Where((card) => card.enabled).Select(card => card.cardInfo).ToArray()).ToList();
             foreach (var item in activeCurses)
             {
-                UnityEngine.Debug.Log($"[WWC][Debugging] {item.cardName} is an enabled curse.");
+                UnityEngine.Debug.Log($"[WWM][Debugging] {item.cardName} is an enabled curse.");
             }
         }
 
@@ -78,13 +79,13 @@ namespace WillsWackyManagers.Utils
             {
                 switch (cardInfo.rarity)
                 {
-                    case CardInfo.Rarity.Rare:
+                    case CardInfo.Rarity.Common:
                         totalWeight += 10f;
                         break;
                     case CardInfo.Rarity.Uncommon:
                         totalWeight += 4f;
                         break;
-                    case CardInfo.Rarity.Common:
+                    case CardInfo.Rarity.Rare:
                         totalWeight += 1f;
                         break;
                 }
@@ -92,24 +93,24 @@ namespace WillsWackyManagers.Utils
 
             var chosenWeight = UnityEngine.Random.Range(0f, totalWeight);
 
-            //UnityEngine.Debug.Log($"[WWC][Debugging] {chosenWeight}/{totalWeight} weight chosen.");
+            //UnityEngine.Debug.Log($"[WWM][Debugging] {chosenWeight}/{totalWeight} weight chosen.");
 
             foreach (var cardInfo in availableChoices)
             {
                 switch (cardInfo.rarity)
                 {
-                    case CardInfo.Rarity.Rare:
+                    case CardInfo.Rarity.Common:
                         chosenWeight -= 10f;
                         break;
                     case CardInfo.Rarity.Uncommon:
                         chosenWeight -= 4f;
                         break;
-                    case CardInfo.Rarity.Common:
+                    case CardInfo.Rarity.Rare:
                         chosenWeight -= 1f;
                         break;
                 }
 
-                //UnityEngine.Debug.Log($"[WWC][Debugging] {cardInfo.cardName} reduced weight to {chosenWeight}.");
+                //UnityEngine.Debug.Log($"[WWM][Debugging] {cardInfo.cardName} reduced weight to {chosenWeight}.");
 
                 if (chosenWeight <= 0f)
                 {
@@ -120,37 +121,11 @@ namespace WillsWackyManagers.Utils
 
             if (!curse)
             {
-                UnityEngine.Debug.Log($"[WWC][Debugging] curse didn't exist, getting one now.");
-                curse = activeCurses.ToArray()[random.Next(activeCurses.Count)];
+                UnityEngine.Debug.Log($"[WWM][Debugging] curse didn't exist, getting one now.");
+                curse = curses.ToArray()[random.Next(curses.Count)];
             }
 
-            if (activeCurses.Contains(curse))
-            {
-                UnityEngine.Debug.Log($"[WWC][Debugging] {curse.cardName} is an enabled curse, new method working.");
-
-                return curse;
-            }
-
-            UnityEngine.Debug.Log($"[WWC][Debugging] {curse.cardName} is not an enabled curse, falling back to old method.");
-
-            return activeCurses.ToArray()[random.Next(activeCurses.Count)];
-        }
-
-        private bool Condition(CardInfo card, Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
-        {
-            bool result = false;
-
-            if (card)
-            {
-                UnityEngine.Debug.Log($"Evaluating {card.cardName}");
-                result = activeCurses.Contains(card);
-            }
-            else
-            {
-                UnityEngine.Debug.Log($"NO CARD INFO PASSED TO CONDITION");
-            }
-
-            return result;
+            return curse;
         }
 
         /// <summary>
@@ -170,7 +145,7 @@ namespace WillsWackyManagers.Utils
         public void CursePlayer(Player player, Action<CardInfo> callback)
         {
             var curse = RandomCurse(player);
-            UnityEngine.Debug.Log($"[WWC][Curse Manager] Player {player.playerID} cursed with {curse.cardName}.");
+            UnityEngine.Debug.Log($"[WWM][Curse Manager] Player {player.playerID} cursed with {curse.cardName}.");
             ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, curse, false, "", 2f, 2f, true);
             callback?.Invoke(curse);
         }
@@ -216,6 +191,82 @@ namespace WillsWackyManagers.Utils
         public bool IsCurse(CardInfo cardInfo)
         {
             return curses.Contains(cardInfo);
+        }
+
+        /// <summary>
+        /// Returns an array of all curse cards on a player. May contain duplicates. 
+        /// </summary>
+        /// <param name="player">The player to check.</param>
+        /// <returns>Array of curse cards.</returns>
+        public CardInfo[] GetAllCursesOnPlayer(Player player)
+        {
+            List<CardInfo> cards = new List<CardInfo>();
+
+            foreach (var card in player.data.currentCards)
+            {
+                if (IsCurse(card))
+                {
+                    cards.Add(card);
+                }
+            }
+
+            return cards.ToArray();
+        }
+
+        /// <summary>
+        /// Removes all curses from the specified player.
+        /// </summary>
+        /// <param name="player">The player to remove curses from.</param>
+        public void RemoveAllCurses(Player player)
+        {
+            RemoveAllCurses(player, null);
+        }
+
+        /// <summary>
+        /// Removes all curses from the specified player.
+        /// </summary>
+        /// <param name="player">The player to remove curses from.</param>
+        /// <param name="callback">An optional callback to run with each card removed.</param>
+        public void RemoveAllCurses(Player player, Action<CardInfo> callback)
+        {
+            StartCoroutine(IRemoveAllCurses(player, callback));
+        }
+
+        private IEnumerator IRemoveAllCurses(Player player, Action<CardInfo> callback)
+        {
+            while (HasCurse(player))
+            {
+                for (int i = 0; i < player.data.currentCards.Count(); i++)
+                {
+                    var card = player.data.currentCards[i];
+                    if (IsCurse(card))
+                    {
+                        callback?.Invoke(card);
+                        ModdingUtils.Utils.Cards.instance.RemoveCardFromPlayer(player, i);
+                        break;
+                    }
+                }
+
+                yield return WaitFor.Frames(20);
+            }
+            yield break;
+        }
+
+        private static class WaitFor
+        {
+            public static IEnumerator Frames(int frameCount)
+            {
+                if (frameCount <= 0)
+                {
+                    throw new ArgumentOutOfRangeException("frameCount", "Cannot wait for less that 1 frame");
+                }
+
+                while (frameCount > 0)
+                {
+                    frameCount--;
+                    yield return null;
+                }
+            }
         }
     }
 }

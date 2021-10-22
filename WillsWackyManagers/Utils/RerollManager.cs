@@ -75,7 +75,7 @@ namespace WillsWackyManagers.Utils
 
             foreach (var player in PlayerManager.instance.players)
             {
-                UnityEngine.Debug.Log($"[WWC][Debugging] Getting card rarities for player {player.playerID}");
+                UnityEngine.Debug.Log($"[WWM][Debugging] Getting card rarities for player {player.playerID}");
                 // Compile List of Rarities
                 cardRarities.Add(player, player.data.currentCards.Select(card => CardRarity(card)).ToList());
                 try
@@ -84,10 +84,10 @@ namespace WillsWackyManagers.Utils
                 }
                 catch (NullReferenceException)
                 {
-                    UnityEngine.Debug.Log($"[WWC][Debugging] SOMEBODY NEEDS TO FIX THEIR REMOVECARD FUNCTION.");
+                    UnityEngine.Debug.Log($"[WWM][Debugging] SOMEBODY NEEDS TO FIX THEIR REMOVECARD FUNCTION.");
                     cardRarities[player].Clear();
                 }
-                UnityEngine.Debug.Log($"[WWC][Debugging] {cardRarities[player].Count} card rarities found for player {player.playerID}");
+                UnityEngine.Debug.Log($"[WWM][Debugging] {cardRarities[player].Count} card rarities found for player {player.playerID}");
             }
 
             if (flippingPlayer && (flippingPlayer ? flippingPlayer.data.currentCards.Count : 0) > 0)
@@ -99,13 +99,13 @@ namespace WillsWackyManagers.Utils
             var allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
             allCards.Remove(tableFlipCard);
 
-            UnityEngine.Debug.Log($"[WWC][Debugging] {allCards.Count()} cards are enabled and ready to be swapped out.");
+            UnityEngine.Debug.Log($"[WWM][Debugging] {allCards.Count()} cards are enabled and ready to be swapped out.");
 
             yield return WaitFor.Frames(1);
 
             for (int i = 0; i < Mathf.Max(cardRarities.Values.Select(cards => cards.Count()).ToArray()); i++)
             {
-                UnityEngine.Debug.Log($"[WWC][Debugging] Initiating round {i+1} of readding cards to players.");
+                UnityEngine.Debug.Log($"[WWM][Debugging] Initiating round {i+1} of readding cards to players.");
                 foreach (var player in PlayerManager.instance.players)
                 {
                     ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
@@ -113,24 +113,24 @@ namespace WillsWackyManagers.Utils
                     if (CurseManager.instance.HasCurse(player))
                     {
                         ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
-                        UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID} is available for curse interaction effects");
+                        UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is available for curse interaction effects");
                     }
                     else if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
                     {
                         ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
                     }
-                    UnityEngine.Debug.Log($"[WWC][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
+                    UnityEngine.Debug.Log($"[WWM][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
                     if (i < cardRarities[player].Count)
                     {
-                        UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID} is able to have a card added.");
+                        UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is able to have a card added.");
                         var rarity = cardRarities[player][i];
-                        UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID}'s card was originally {RarityName(rarity)}, finding a replacement now.");
+                        UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID}'s card was originally {RarityName(rarity)}, finding a replacement now.");
                         var cardChoices = allCards.Where(cardInfo => (CardRarity(cardInfo) == rarity) && (ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, cardInfo))).ToArray();
-                        UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID} is eligible for {cardChoices.Count()} cards");
+                        UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is eligible for {cardChoices.Count()} cards");
                         if (cardChoices.Count() > 0)
                         {
                             var card = RandomCard(cardChoices);
-                            UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID} is being given {card.cardName}");
+                            UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is being given {card.cardName}");
                             ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
                             ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
                         }
@@ -141,7 +141,7 @@ namespace WillsWackyManagers.Utils
 
                 yield return WaitFor.Frames(20); 
             }
-            UnityEngine.Debug.Log($"[WWC][Debugging] Finished adding cards to players.");
+            UnityEngine.Debug.Log($"[WWM][Debugging] Finished adding cards to players.");
 
             if (flippingPlayer && tableFlipCard && addCard)
             {
@@ -191,16 +191,16 @@ namespace WillsWackyManagers.Utils
             {
                 List<Rarity> cardRarities = new List<Rarity>();
 
-                UnityEngine.Debug.Log($"[WWC][Debugging] Getting card rarities for player {player.playerID}");
+                UnityEngine.Debug.Log($"[WWM][Debugging] Getting card rarities for player {player.playerID}");
                 cardRarities = player.data.currentCards.Select(card => CardRarity(card)).ToList();
-                UnityEngine.Debug.Log($"[WWC][Debugging] {cardRarities.Count} card rarities found for player {player.playerID}");
+                UnityEngine.Debug.Log($"[WWM][Debugging] {cardRarities.Count} card rarities found for player {player.playerID}");
                 try
                 {
                     ModdingUtils.Utils.Cards.instance.RemoveAllCardsFromPlayer(player);
                 }
                 catch (NullReferenceException)
                 {
-                    UnityEngine.Debug.Log($"[WWC][Debugging] SOMEBODY NEEDS TO FIX THEIR REMOVECARD FUNCTION.");
+                    UnityEngine.Debug.Log($"[WWM][Debugging] SOMEBODY NEEDS TO FIX THEIR REMOVECARD FUNCTION.");
                     cardRarities.Clear();
                 }
 
@@ -212,7 +212,7 @@ namespace WillsWackyManagers.Utils
 
                 var allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
 
-                UnityEngine.Debug.Log($"[WWC][Debugging] {allCards.Count()} cards are enabled and ready to be swapped out.");
+                UnityEngine.Debug.Log($"[WWM][Debugging] {allCards.Count()} cards are enabled and ready to be swapped out.");
 
                 yield return WaitFor.Frames(1);
 
@@ -226,22 +226,22 @@ namespace WillsWackyManagers.Utils
                     if (CurseManager.instance.HasCurse(player))
                     {
                         ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
-                        UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID} is available for curse interaction effects");
+                        UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is available for curse interaction effects");
                     }
                     else if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
                     {
                         ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
                     }
 
-                    UnityEngine.Debug.Log($"[WWC][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
-                    UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID} is able to have a card added.");
-                    UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID}'s card was originally {RarityName(rarity)}, finding a replacement now.");
+                    UnityEngine.Debug.Log($"[WWM][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
+                    UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is able to have a card added.");
+                    UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID}'s card was originally {RarityName(rarity)}, finding a replacement now.");
                     var cardChoices = allCards.Where(cardInfo => (CardRarity(cardInfo) == rarity) && (ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, cardInfo))).ToArray();
-                    UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID} is eligible for {cardChoices.Count()} cards");
+                    UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is eligible for {cardChoices.Count()} cards");
                     if (cardChoices.Count() > 0)
                     {
                         var card = RandomCard(cardChoices);
-                        UnityEngine.Debug.Log($"[WWC][Debugging] Player {player.playerID} is being given {card.cardName}");
+                        UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is being given {card.cardName}");
                         ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
                         ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
                     }
@@ -249,7 +249,7 @@ namespace WillsWackyManagers.Utils
                     yield return WaitFor.Frames(25);
                 }
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
-                UnityEngine.Debug.Log($"[WWC][Debugging] Finished adding cards.");
+                UnityEngine.Debug.Log($"[WWM][Debugging] Finished adding cards.");
 
                 if (rerollCard && addCard)
                 {
