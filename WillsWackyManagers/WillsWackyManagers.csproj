@@ -20,17 +20,47 @@
     <Reference Include="CardChoiceSpawnUniqueCardPatch">
       <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\CardChoiceSpawnUniqueCardPatch.dll</HintPath>
     </Reference>
+    <Reference Include="InControl">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\InControl.dll</HintPath>
+    </Reference>
     <Reference Include="ModdingUtils">
       <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\ModdingUtils.dll</HintPath>
     </Reference>
+    <Reference Include="PhotonRealtime">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\PhotonRealtime.dll</HintPath>
+    </Reference>
+    <Reference Include="PhotonUnityNetworking">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\PhotonUnityNetworking.dll</HintPath>
+    </Reference>
+    <Reference Include="RoundsWithFriends">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\RoundsWithFriends.dll</HintPath>
+    </Reference>
+    <Reference Include="SonigonAudioEngine.Runtime">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\SonigonAudioEngine.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="UnboundLib">
       <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\UnboundLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreModule">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\UnityEngine.TextCoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\UnityEngine.UIElementsModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 

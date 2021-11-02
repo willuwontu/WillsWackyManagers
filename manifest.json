@@ -11,6 +11,7 @@
 		"BepInEx-BepInExPack_ROUNDS-5.4.1100",
 		"Pykess-PlayerJumpPatch-0.0.2",
 		"Pykess-CardChoiceSpawnUniqueCardPatch-0.1.2",
-		"Pykess-ModdingUtils-0.1.3"
+		"Pykess-ModdingUtils-0.1.3",
+		"olavim-RoundsWithFriends-1.3.9"
 	]
 }
