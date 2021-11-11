@@ -5,6 +5,20 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.1.0
+- Functionality has been added to allow for methods of removing cards outside of other cards, this has been opened up as an API for other modders to add their own methods. More information is available in the documentation below or on the github which has references to the default methods.
+- A curse removal method requires 3 things:
+  - The name of the method, this is what's displayed when the option is presented to the player.
+  - A condition under which the method should be shown to the player.
+  - The action to take when the method is chosen.
+- By default this functionality is turned off, but there is a toggle to turn it on.
+- By default there are 4 methods available:
+  - Keep Curse: You opt to keep any curses you have. Always shows up.
+  - Lose 1 round, lose 1 curse: Only shows up if you've won at least 1 round. Your number of won rounds is reduced by 1 and the newest curse incurred is removed.
+  - Lose 1 Curse, give enemies an uncommon: Only shows up if you have more cards than at least 1 other player. Removes a curse and gives you enemies an uncommon.
+  - Lose all cards, lose all curses: Only shows up if you have 5 or more curses. Removes all cards and curses that you have.
+
+----
 ### v 1.0.3
 - Added 3 new functions to the curse manager and documented them.
 
@@ -50,6 +64,79 @@ CardCategory curseInteractionCategory { get;}
 ```
 #### Description
 The card category for cards that interacted with cursed players. When utilized, cards with it will only show up when a player has a curse.
+</details>
+
+<details>
+<summary>Classes</summary>
+
+### CurseRemovalOption
+```cs
+struct CurseRemovalOption
+```
+#### Fields
+- readonly string name;
+- readonly Func<Player, bool> condition;
+- readonly Func<Player, IEnumerator> action;
+ 
+#### Constructors
+ 
+### CurseRemovalOption()
+```cs
+CurseRemovalOption CurseRemovalOption(string optionName, Func<Player, bool> optionCondition, Func<Player, IEnumerator> optionAction)
+```
+#### Description
+Creates a Curse Removal Option
+
+#### Parameters
+- *string* `optionName` The text the player sees for choosing the option. Must be unique.
+- *Func<Player, bool>* `optionCondition` A function that takes in a player object as input and outputs a bool. When true the option is available for players.
+- *Func<Player, IEnumerator>* `optionAction` An IEnumerator that takes in a player object as input. Run when the option is selected. If it wishes to remove a curse, it must do so.
+
+#### Example Usage
+```CSHARP
+var keepCurse = new CurseRemovalOption("Keep Curse", (player) => true, IKeepCurse);
+RegisterRemovalOption(keepCurse);
+var removeRound = new CurseRemovalOption("-1 round, -1 curse", CondRemoveRound, IRemoveRound);
+RegisterRemovalOption(removeRound);
+
+private IEnumerator IKeepCurse(Player player)
+{
+    yield break;
+}
+
+
+
+private bool CondRemoveRound(Player player)
+{
+    var result = false;
+    // Only shows up if they have a round point to remove.
+    if (GameModeManager.CurrentHandler.GetTeamScore(player.teamID).rounds > 0)
+    {
+        result = true;
+    }
+
+    return result;
+}
+
+private IEnumerator IRemoveRound(Player player)
+{
+    var score = GameModeManager.CurrentHandler.GetTeamScore(player.teamID);
+    GameModeManager.CurrentHandler.SetTeamScore(player.teamID, new TeamScore(score.points, score.rounds - 1));
+
+    var roundCounter = GameObject.Find("/Game/UI/UI_Game/Canvas/RoundCounter").GetComponent<RoundCounter>();
+    roundCounter.InvokeMethod("ReDraw");
+
+    for (var i = player.data.currentCards.Count() - 1; i >= 0; i--)
+    {
+        if (instance.IsCurse(player.data.currentCards[i]))
+        {
+            ModdingUtils.Utils.Cards.instance.RemoveCardFromPlayer(player, i);
+            break;
+        }
+    }
+    yield break;
+}
+```
 </details>
 
 <details>
@@ -184,6 +271,68 @@ Returns true if the card is a registered curse.
 #### Example Usage
 ```CSHARP
 
+```
+
+### RegisterRemovalOption()
+```cs
+void RegisterRemovalOption(string optionName, Func<Player, bool> optionCondition, Func<Player, IEnumerator> optionAction)
+```
+```cs
+void RegisterRemovalOption(CurseRemovalOption option)
+```
+#### Description
+Initiates any rerolls in the queue.
+
+#### Parameters
+- *string* `optionName` The text the player sees for choosing the option. Must be unique.
+- *Func<Player, bool>* `optionCondition` A function that takes in a player object as input and outputs a bool. When true the option is available for players.
+- *Func<Player, IEnumerator>* `optionAction` An IEnumerator that takes in a player object as input. Run when the option is selected. If it wishes to remove a curse, it must do so.
+
+or 
+
+- *CurseRemovalOption* `option` The curse removal option to implement.
+
+#### Example Usage
+```CSHARP
+RegisterRemovalOption("Keep Curse", (player) => true, IKeepCurse);
+var removeRound = new CurseRemovalOption("-1 round, -1 curse", CondRemoveRound, IRemoveRound);
+RegisterRemovalOption(removeRound);
+
+private IEnumerator IKeepCurse(Player player)
+{
+    yield break;
+}
+
+private bool CondRemoveRound(Player player)
+{
+    var result = false;
+    // Only shows up if they have a round point to remove.
+    if (GameModeManager.CurrentHandler.GetTeamScore(player.teamID).rounds > 0)
+    {
+        result = true;
+    }
+
+    return result;
+}
+
+private IEnumerator IRemoveRound(Player player)
+{
+    var score = GameModeManager.CurrentHandler.GetTeamScore(player.teamID);
+    GameModeManager.CurrentHandler.SetTeamScore(player.teamID, new TeamScore(score.points, score.rounds - 1));
+
+    var roundCounter = GameObject.Find("/Game/UI/UI_Game/Canvas/RoundCounter").GetComponent<RoundCounter>();
+    roundCounter.InvokeMethod("ReDraw");
+
+    for (var i = player.data.currentCards.Count() - 1; i >= 0; i--)
+    {
+        if (instance.IsCurse(player.data.currentCards[i]))
+        {
+            ModdingUtils.Utils.Cards.instance.RemoveCardFromPlayer(player, i);
+            break;
+        }
+    }
+    yield break;
+}
 ```
 </details>
 

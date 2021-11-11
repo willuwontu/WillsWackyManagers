@@ -58,7 +58,7 @@ namespace WillsWackyManagers.Utils
             keepCurse = new CurseRemovalOption("Keep Curse", (player) => true, IKeepCurse);
             removeRound = new CurseRemovalOption("-1 round, -1 curse", CondRemoveRound, IRemoveRound);
             removeAllCards = new CurseRemovalOption("Lose all cards, lose all curses", CondRemoveAllCards, IRemoveAllCards);
-            giveExtraPick = new CurseRemovalOption("You: -1 curse, Enemies: +1 card", CondGiveExtraPick, IGiveExtraPick);
+            giveExtraPick = new CurseRemovalOption("You: -1 curse, Enemies: +1 uncommon", CondGiveExtraPick, IGiveExtraPick);
 
             RegisterRemovalOption(keepCurse);
             RegisterRemovalOption(giveExtraPick);
@@ -260,6 +260,7 @@ namespace WillsWackyManagers.Utils
 
         private IEnumerator IRemoveAllCurses(Player player, Action<CardInfo> callback)
         {
+            List<CardInfo> playerCurses = new List<CardInfo>();
             while (HasCurse(player))
             {
                 for (int i = 0; i < player.data.currentCards.Count(); i++)
@@ -267,7 +268,7 @@ namespace WillsWackyManagers.Utils
                     var card = player.data.currentCards[i];
                     if (IsCurse(card))
                     {
-                        callback?.Invoke(card);
+                        playerCurses.Add(card);
                         ModdingUtils.Utils.Cards.instance.RemoveCardFromPlayer(player, i);
                         break;
                     }
@@ -275,6 +276,12 @@ namespace WillsWackyManagers.Utils
 
                 yield return WaitFor.Frames(20);
             }
+
+            foreach (var curse in playerCurses)
+            {
+                callback?.Invoke(curse);
+            }
+
             yield break;
         }
 
@@ -307,7 +314,7 @@ namespace WillsWackyManagers.Utils
         /// <summary>
         /// A way to remove curses.
         /// </summary>
-        private struct CurseRemovalOption
+        public struct CurseRemovalOption
         {
             public readonly string name;
             public readonly Func<Player, bool> condition;
@@ -317,8 +324,8 @@ namespace WillsWackyManagers.Utils
             /// Creates a Curse Removal Option
             /// </summary>
             /// <param name="optionName">The text the player sees for choosing the option.</param>
-            /// <param name="optionCondition">When should the option be shown? Takes a player value as input.</param>
-            /// <param name="optionAction">If the option is selected, what happens? If a curse is to be removed, the action must do so. Takes a player as input.</param>
+            /// <param name="optionCondition">A function that takes in a player object as input and outputs a bool. When true the option is available for players.</param>
+            /// <param name="optionAction">An IEnumerator that takes in a player object as input. Run when the option is selected. If it wishes to remove a curse, it must do so.</param>
             public CurseRemovalOption(string optionName, Func<Player, bool> optionCondition, Func<Player, IEnumerator> optionAction)
             {
                 name = optionName.ToUpper();
@@ -393,12 +400,35 @@ namespace WillsWackyManagers.Utils
                 if (instance.IsCurse(player.data.currentCards[i]))
                 {
                     var enemies = PlayerManager.instance.players.Where((person) => person.teamID != player.teamID);
-                    //yield return WillsWackyManagers.ExtraPicks(enemies.ToDictionary((person) => person, (person) => 1));
+                    //var pickers = enemies.ToDictionary((person) => person, (person) => 1);
+                    //yield return WillsWackyManagers.ExtraPicks(pickers);
+
+                    foreach (var enemy in enemies)
+                    {
+                        var gun = enemy.GetComponent<Holding>().holdable.GetComponent<Gun>();
+                        var data = enemy.GetComponent<CharacterData>();
+                        var health = enemy.GetComponent<HealthHandler>();
+                        var gravity = enemy.GetComponent<Gravity>();
+                        var block = enemy.GetComponent<Block>();
+                        var gunAmmo = gun.GetComponentInChildren<GunAmmo>();
+                        var stats = enemy.GetComponent<CharacterStatModifiers>();
+
+                        var card = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(enemy, gun, gunAmmo, data, health, gravity, block, stats, UncommonCondition);
+
+                        ModdingUtils.Utils.Cards.instance.AddCardToPlayer(enemy, card, false, "", 2f, 2f, true);
+                    }
+
                     ModdingUtils.Utils.Cards.instance.RemoveCardFromPlayer(player, i);
                     break;
                 }
             }
             yield break;
+        }
+
+        private bool UncommonCondition(CardInfo card, Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
+        {
+
+            return card.rarity == CardInfo.Rarity.Uncommon;
         }
 
         private CurseRemovalOption removeAllCards;
@@ -441,7 +471,7 @@ namespace WillsWackyManagers.Utils
         /// Registers a curse removal option for players to use.
         /// </summary>
         /// <param name="option">The option to register.</param>
-        private void RegisterRemovalOption(CurseRemovalOption option)
+        public void RegisterRemovalOption(CurseRemovalOption option)
         {
             if (removalOptions.Select((item) => item.name).Contains(option.name))
             {
