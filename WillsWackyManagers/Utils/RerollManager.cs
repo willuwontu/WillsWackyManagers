@@ -146,7 +146,7 @@ namespace WillsWackyManagers.Utils
             if (flippingPlayer && tableFlipCard && addCard)
             {
                 // Add the tableflip card to the player
-                ModdingUtils.Utils.Cards.instance.AddCardToPlayer(flippingPlayer, tableFlipCard, false, "", 2f, 2f, true);
+                ModdingUtils.Utils.Cards.instance.AddCardToPlayer(flippingPlayer, tableFlipCard, true, "", 2f, 2f, true);
                 ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(flippingPlayer, tableFlipCard);
             }
             yield return WaitFor.Frames(20);
@@ -253,8 +253,8 @@ namespace WillsWackyManagers.Utils
 
                 if (rerollCard && addCard)
                 {
-                    // Add the tableflip card to the player
-                    ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, rerollCard, false, "", 2f, 2f, true);
+                    // Add the Reroll card to the player
+                    ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, rerollCard, true, "", 2f, 2f, true);
                     ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, rerollCard);
                 }
                 yield return WaitFor.Frames(25);

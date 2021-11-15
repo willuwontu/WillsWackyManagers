@@ -31,7 +31,7 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.1.0"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.1.1"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
 
         public static WillsWackyManagers instance;
@@ -61,6 +61,8 @@ namespace WillsWackyManagers
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, PlayerPickEnd);
             GameModeManager.AddHook(GameModeHooks.HookGameStart, GameStart);
 
+
+            var bounces = Mathf.Pow(1, 4);
         }
 
         IEnumerator PlayerPickStart(IGameModeHandler gm)

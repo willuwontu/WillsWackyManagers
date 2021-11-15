@@ -5,6 +5,10 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.1.1
+- Fixed a bug where reroll would cause itself to trigger the next round, causing it to continue going off the rest of the game. (Thank you BYZE for finding this bug for me.)
+
+----
 ### v 1.1.0
 - Functionality has been added to allow for methods of removing cards outside of other cards, this has been opened up as an API for other modders to add their own methods. More information is available in the documentation below or on the github which has references to the default methods.
 - A curse removal method requires 3 things:
