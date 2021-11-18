@@ -174,7 +174,7 @@ namespace WillsWackyManagers.Utils
                 }
             }
             
-            rerollPlayers.Clear();
+            rerollPlayers = new List<Player>();
             reroll = false;
             yield return null;
         }
