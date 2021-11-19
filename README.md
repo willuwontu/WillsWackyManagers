@@ -5,6 +5,10 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.1.2
+- Some patches that will hopefully help high lag players from initiating perpetual table flips and rerolls.
+
+----
 ### v 1.1.1
 - Fixed a bug where reroll would cause itself to trigger the next round, causing it to continue going off the rest of the game. (Thank you BYZE for finding this bug for me.)
 

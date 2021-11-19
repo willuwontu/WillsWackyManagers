@@ -36,6 +36,11 @@ namespace WillsWackyManagers.Utils
         /// </summary>
         public CardCategory curseInteractionCategory { get; private set; } = CustomCardCategories.instance.CardCategory("Cursed");
 
+        /// <summary>
+        /// The card category for cards that grants curses to players.
+        /// </summary>
+        public CardCategory curseSpawner = CustomCardCategories.instance.CardCategory("Grants Curses");
+
         private void Start()
         {
             instance = this;

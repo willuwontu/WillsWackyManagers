@@ -31,7 +31,7 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.1.1"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.1.2"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
 
         public static WillsWackyManagers instance;
@@ -60,9 +60,20 @@ namespace WillsWackyManagers
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, PlayerPickStart);
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, PlayerPickEnd);
             GameModeManager.AddHook(GameModeHooks.HookGameStart, GameStart);
+            GameModeManager.AddHook(GameModeHooks.HookPickEnd, PickEnd);
 
 
             var bounces = Mathf.Pow(1, 4);
+        }
+
+        IEnumerator PickEnd(IGameModeHandler gm)
+        {
+            yield return new WaitForSecondsRealtime(1f);
+            RerollManager.instance.tableFlipped = false;
+            RerollManager.instance.rerollPlayers = new List<Player>();
+            RerollManager.instance.reroll = false;
+
+            yield break;
         }
 
         IEnumerator PlayerPickStart(IGameModeHandler gm)
@@ -89,11 +100,13 @@ namespace WillsWackyManagers
                 StartCoroutine(RerollManager.instance.FlipTable());
             }
             yield return new WaitUntil(() => RerollManager.instance.tableFlipped == false);
+
             if (RerollManager.instance.reroll)
             {
                 StartCoroutine(RerollManager.instance.InitiateRerolls());
             }
             yield return new WaitUntil(() => RerollManager.instance.reroll == false);
+
             yield break;
         }
 

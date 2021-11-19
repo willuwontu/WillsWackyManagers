@@ -101,7 +101,7 @@ namespace WillsWackyManagers.Utils
 
             UnityEngine.Debug.Log($"[WWM][Debugging] {allCards.Count()} cards are enabled and ready to be swapped out.");
 
-            yield return WaitFor.Frames(1);
+            yield return WaitFor.Frames(20);
 
             for (int i = 0; i < Mathf.Max(cardRarities.Values.Select(cards => cards.Count()).ToArray()); i++)
             {
@@ -136,10 +136,10 @@ namespace WillsWackyManagers.Utils
                         }
                     }
                     ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
-                    yield return WaitFor.Frames(10);
+                    yield return WaitFor.Frames(40);
                 }
 
-                yield return WaitFor.Frames(20); 
+                yield return WaitFor.Frames(40); 
             }
             UnityEngine.Debug.Log($"[WWM][Debugging] Finished adding cards to players.");
 
@@ -149,7 +149,7 @@ namespace WillsWackyManagers.Utils
                 ModdingUtils.Utils.Cards.instance.AddCardToPlayer(flippingPlayer, tableFlipCard, true, "", 2f, 2f, true);
                 ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(flippingPlayer, tableFlipCard);
             }
-            yield return WaitFor.Frames(20);
+            yield return WaitFor.Frames(40);
 
             flippingPlayer = null;
             tableFlipped = false;
@@ -214,7 +214,7 @@ namespace WillsWackyManagers.Utils
 
                 UnityEngine.Debug.Log($"[WWM][Debugging] {allCards.Count()} cards are enabled and ready to be swapped out.");
 
-                yield return WaitFor.Frames(1);
+                yield return WaitFor.Frames(20);
 
 
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
@@ -246,7 +246,7 @@ namespace WillsWackyManagers.Utils
                         ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
                     }
 
-                    yield return WaitFor.Frames(25);
+                    yield return WaitFor.Frames(40);
                 }
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
                 UnityEngine.Debug.Log($"[WWM][Debugging] Finished adding cards.");
@@ -257,7 +257,7 @@ namespace WillsWackyManagers.Utils
                     ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, rerollCard, true, "", 2f, 2f, true);
                     ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, rerollCard);
                 }
-                yield return WaitFor.Frames(25);
+                yield return WaitFor.Frames(40);
             }
 
             yield return null;
