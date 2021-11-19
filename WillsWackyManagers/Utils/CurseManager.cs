@@ -39,7 +39,7 @@ namespace WillsWackyManagers.Utils
         /// <summary>
         /// The card category for cards that grants curses to players.
         /// </summary>
-        public CardCategory curseSpawner = CustomCardCategories.instance.CardCategory("Grants Curses");
+        public CardCategory curseSpawnerCategory { get; private set; } = CustomCardCategories.instance.CardCategory("Grants Curses");
 
         private void Start()
         {

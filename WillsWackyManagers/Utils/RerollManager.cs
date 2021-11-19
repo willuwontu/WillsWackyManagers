@@ -64,6 +64,65 @@ namespace WillsWackyManagers.Utils
             instance = this;
         }
 
+        public List<Player> MixUpPlayers = new List<Player>();
+
+        internal IEnumerator IMixUpCards(Player player)
+        {
+            var triggeringPlayer = player;
+            var nonAIPlayers = PlayerManager.instance.players.Where((person) => !ModdingUtils.AIMinion.Extensions.CharacterDataExtension.GetAdditionalData(person.data).isAIMinion).ToArray();
+            var originalBoard = nonAIPlayers.ToDictionary((person) => person, (person) => person.data.currentCards.ToArray());
+
+            var newBoard = originalBoard.ToDictionary((kvp) => kvp.Key, (kvp) => kvp.Value.ToList());
+
+            for (int i = 0; i < originalBoard[triggeringPlayer].Count() - 1; i++)
+            {
+                yield return WaitFor.Frames(20);
+
+                if (originalBoard[triggeringPlayer][i].categories.Contains(NoFlip))
+                {
+                    continue;
+                }
+
+                var currentOptions = originalBoard.Where((kvp) => kvp.Value.Length > i).ToDictionary((kvp) => kvp.Key, (kvp) => kvp.Value[i]).Where(
+                    (kvp) =>
+                        !kvp.Value.categories.Contains(NoFlip) &&
+                        (
+                            ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(triggeringPlayer, kvp.Value) ||
+                            kvp.Key == triggeringPlayer
+                        ) &&
+                        (
+                            ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(kvp.Key, originalBoard[triggeringPlayer][i]) ||
+                            kvp.Key == triggeringPlayer
+                        )
+                    ).ToDictionary((kvp) => kvp.Key, (kvp) => kvp.Value);
+
+                if (!(currentOptions.Count() > 0))
+                {
+                    continue;
+                }
+
+                var randomSelection = currentOptions.Keys.ToArray()[UnityEngine.Random.Range(0, currentOptions.Keys.ToArray().Count())];
+
+                if (randomSelection = triggeringPlayer)
+                {
+                    continue;
+                }
+
+                var replaced = originalBoard[triggeringPlayer][i];
+                var replacement = currentOptions[randomSelection];
+
+                newBoard[triggeringPlayer][i] = replacement;
+                newBoard[randomSelection][i] = replaced;
+
+                ModdingUtils.Utils.Cards.instance.ReplaceCard(triggeringPlayer, i, replacement, "", 2f, 2f, true);
+                ModdingUtils.Utils.Cards.instance.ReplaceCard(randomSelection, i, replaced, "", 2f, 2f, true);
+
+                UnityEngine.Debug.Log($"[{WillsWackyManagers.ModInitials}][Mix Up][Debugging] Swapped player {triggeringPlayer.playerID}'s {replaced.cardName} with player {randomSelection.playerID}'s {replacement.cardName}.");
+            }
+
+            yield break;
+        }
+
         /// <summary>
         /// Initiates a table flip for all players.
         /// </summary>
