@@ -5,6 +5,13 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.2.0
+- Migrated the reroll cards over to WWM
+- Added the option for table flip to become an uncommon, but only be able to appear when one player has at least half the rounds needed to win.
+- Added the option to Enable or Disable cards that spawn curses. This is enabled by default.
+- Added a timeout functionality to the Curse Removal Options. It take a minute to do so, but it is there.
+
+----
 ### v 1.1.2
 - Some patches that will hopefully help high lag players from initiating perpetual table flips and rerolls.
 

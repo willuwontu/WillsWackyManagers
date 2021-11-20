@@ -55,6 +55,11 @@ namespace WillsWackyManagers.Utils
                         break;
                     }
                 }
+
+                if (deckCustomizationLoaded)
+                {
+
+                }
             });
 
             GameModeManager.AddHook(GameModeHooks.HookGameStart, GameStart);
@@ -83,15 +88,65 @@ namespace WillsWackyManagers.Utils
         /// <summary>
         /// Returns a random curse from the list of curses, if one exists.
         /// </summary>
-        /// <param name="player"></param>
+        /// <returns>CardInfo for the generated curse.</returns>
+        public CardInfo RandomCurse()
+        {
+            var curse = FallbackMethod(activeCurses.ToArray());
+            if (!curse)
+            {
+                curse = FallbackMethod(curses.ToArray());
+            }
+
+            return curse;
+        }
+
+        /// <summary>
+        /// Returns a random curse from the list of curses, if one exists.
+        /// </summary>
+        /// <param name="player">A player for whom the curse has to be valid for.</param>
         /// <returns>CardInfo for the generated curse.</returns>
         public CardInfo RandomCurse(Player player)
+        {
+            return RandomCurse(player, (card, person) => { return true; });
+        }
+
+        /// <summary>
+        /// Returns a random curse from the list of curses, if one exists.
+        /// </summary>
+        /// <param name="player">A player for whom the curse has to be valid for.</param>
+        /// <param name="condition">A condition for returning a valid curse. If none meet the condition, a random curse will be given instead.</param>
+        /// <returns>CardInfo for the generated curse.</returns>
+        public CardInfo RandomCurse(Player player, Func<CardInfo, Player, bool> condition)
         {
             CheckCurses();
 
             ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == curseCategory);
-            var availableChoices = activeCurses.Where((cardInfo) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, cardInfo)).ToArray();
+
+            CardInfo curse = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, player.data.weaponHandler.gun, player.data.weaponHandler.gun.GetComponentInChildren<GunAmmo>(), player.data, player.data.healthHandler, player.GetComponent<Gravity>(), player.data.block, player.data.stats, (cardInfo, person, gun, gunAmmo, data, healthHandler, gravity, block, stats) => {
+                var result = false;
+
+                result = activeCurses.Contains(cardInfo) && condition(cardInfo, person);
+
+                return result;
+            }, 100);
+
             ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(curseCategory);
+
+            if (!curse)
+            {
+                UnityEngine.Debug.Log($"[WWM][Debugging] curse didn't exist, getting one now.");
+                curse = FallbackMethod(activeCurses.ToArray());
+                if (!curse)
+                {
+                    curse = FallbackMethod(curses.ToArray());
+                }
+            }
+
+            return curse;
+        }
+
+        private CardInfo FallbackMethod(CardInfo[] availableChoices)
+        {
             CardInfo curse = null;
 
             var totalWeight = 0f;
@@ -139,12 +194,6 @@ namespace WillsWackyManagers.Utils
                 }
             }
 
-            if (!curse)
-            {
-                UnityEngine.Debug.Log($"[WWM][Debugging] curse didn't exist, getting one now.");
-                curse = curses.ToArray()[random.Next(curses.Count)];
-            }
-
             return curse;
         }
 
@@ -154,7 +203,7 @@ namespace WillsWackyManagers.Utils
         /// <param name="player">The player to curse.</param>
         public void CursePlayer(Player player)
         {
-            CursePlayer(player, null);
+            CursePlayer(player, null, null);
         }
 
         /// <summary>
@@ -164,7 +213,37 @@ namespace WillsWackyManagers.Utils
         /// <param name="callback">An action to run with the information of the curse.</param>
         public void CursePlayer(Player player, Action<CardInfo> callback)
         {
-            var curse = RandomCurse(player);
+            CursePlayer(player, callback, null);
+        }
+
+        /// <summary>
+        /// Curses a player with a random curse.
+        /// </summary>
+        /// <param name="player">The player to curse.</param>
+        /// <param name="condition">A condition for the curse. If no curses meet the condition, a random one will be given instead.</param>
+        public void CursePlayer(Player player, Func<CardInfo, Player, bool> condition)
+        {
+            CursePlayer(player, null, condition);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="player">The player to curse.</param>
+        /// <param name="callback">An action to run with the information of the curse.</param>
+        /// <param name="condition">A condition for the curse. If no curses meet the condition, a random one will be given instead.</param>
+        public void CursePlayer(Player player, Action<CardInfo> callback, Func<CardInfo, Player, bool> condition)
+        {
+            CardInfo curse = null;
+            if (condition != null)
+            {
+                curse = RandomCurse(player, condition);
+            }
+            else
+            {
+                curse = RandomCurse(player);
+            }
+
             UnityEngine.Debug.Log($"[WWM][Curse Manager] Player {player.playerID} cursed with {curse.cardName}.");
             ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, curse, false, "", 2f, 2f, true);
             callback?.Invoke(curse);
@@ -279,12 +358,13 @@ namespace WillsWackyManagers.Utils
                     }
                 }
 
-                yield return WaitFor.Frames(20);
+                yield return WaitFor.Frames(40);
             }
 
             foreach (var curse in playerCurses)
             {
                 callback?.Invoke(curse);
+                yield return WaitFor.Frames(40);
             }
 
             yield break;
@@ -491,6 +571,7 @@ namespace WillsWackyManagers.Utils
         private List<CurseRemovalOption> removalOptions = new List<CurseRemovalOption>();
 
         private bool playerDeciding = false;
+        private bool choseAction = false;
         private Player decidingPlayer;
 
         private Dictionary<Player, int> curseCount = new Dictionary<Player, int>();
@@ -499,6 +580,8 @@ namespace WillsWackyManagers.Utils
         {
             playerDeciding = true;
             decidingPlayer = player;
+
+            StartCoroutine(TimeOut(player));
 
             var validOptions = removalOptions.Where((option) => option.condition(player)).ToList();
 
@@ -513,6 +596,8 @@ namespace WillsWackyManagers.Utils
             choices.Remove(keepCurse.name);
             choices.Add(keepCurse.name); // We want keep curse to be the last option presented.
 
+            choseAction = false;
+
             if (player.data.view.IsMine || PhotonNetwork.OfflineMode)
             {
                 try
@@ -522,6 +607,7 @@ namespace WillsWackyManagers.Utils
                 catch (NullReferenceException)
                 {
                     UnityEngine.Debug.Log($"[WWM][Debugging] Popup menu doesn't exist.");
+                    choseAction = true;
                     playerDeciding = false;
                 }
             }
@@ -532,6 +618,26 @@ namespace WillsWackyManagers.Utils
             }
 
             yield return new WaitUntil(() => !playerDeciding);
+
+            yield break;
+        }
+
+        private IEnumerator TimeOut(Player player)
+        {
+            yield return new WaitForSecondsRealtime(60f);
+
+            if (decidingPlayer == player && playerDeciding)
+            {
+                if (choseAction)
+                {
+                    playerDeciding = false;
+                }
+                else
+                {
+                    UI.PopUpMenu.instance.InvokeMethod("Choose");
+                    yield return new WaitForSecondsRealtime(30f);
+                }
+            }
 
             yield break;
         }
@@ -552,6 +658,7 @@ namespace WillsWackyManagers.Utils
         private void RPC_ExecuteChosenOption(string choice)
         {
             ExecuteChosenOption(choice);
+            choseAction = true;
         }
 
         private void ExecuteChosenOption(string choice)
@@ -602,6 +709,8 @@ namespace WillsWackyManagers.Utils
                         }
                     }
                 }
+
+                yield return new WaitForSecondsRealtime(1f);
 
                 // Clear and rebuild our curse tracker
                 curseCount.Clear();

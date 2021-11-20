@@ -33,7 +33,7 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.1.2"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.2.0"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
 
         public static WillsWackyManagers instance;
@@ -61,13 +61,15 @@ namespace WillsWackyManagers
             gameObject.GetOrAddComponent<RerollManager>();
             gameObject.GetOrAddComponent<CurseManager>();
 
-            // Curse Manager Settings
-            enableCurseSpawning = Config.Bind(ModName, "Curse Spawning", true, "Enables the ability to for cards tat give curses to spawn.");
-            enableCurseRemoval = Config.Bind(ModName, "Curse Removal", false, "Enables curse removal via end of round effects.");
+            { // Config File Stuff
+                // Curse Manager Settings
+                enableCurseSpawning = Config.Bind(ModInitials, "CurseSpawning", true, "Cards that give curse can spawn.");
+                enableCurseRemoval = Config.Bind(ModInitials, "CurseRemoval", false, "Enables curse removal via end of round effects.");
 
-            // Reroll Manager Settings
-            enableTableFlip = Config.Bind(ModName, "TableFlipAllowed", false, "Enable table flip and reroll.");
-            secondHalfTableFlip = Config.Bind(ModName, "TableFlipSecondHalf", false, "Makes Table Flip an Uncommon and only able to appear in the second half.");
+                // Reroll Manager Settings
+                enableTableFlip = Config.Bind(ModInitials, "TableFlipAllowed", true, "Enable table flip and reroll.");
+                secondHalfTableFlip = Config.Bind(ModInitials, "TableFlipSecondHalf", true, "Makes Table Flip an Uncommon and only able to appear in the second half.");
+            }
 
             Unbound.RegisterMenu(ModName, () => { }, NewGUI, null, false);
             Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
@@ -76,6 +78,7 @@ namespace WillsWackyManagers
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, PlayerPickEnd);
             GameModeManager.AddHook(GameModeHooks.HookGameStart, GameStart);
             GameModeManager.AddHook(GameModeHooks.HookPickEnd, PickEnd);
+            GameModeManager.AddHook(GameModeHooks.HookPickStart, PickStart);
 
 
             CustomCard.BuildCard<TableFlip>((cardInfo) => { RerollManager.instance.tableFlipCard = cardInfo; });
