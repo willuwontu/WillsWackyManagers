@@ -122,17 +122,20 @@ namespace WillsWackyManagers.Utils
 
             ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == curseCategory);
 
-            CardInfo curse = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, player.data.weaponHandler.gun, player.data.weaponHandler.gun.GetComponentInChildren<GunAmmo>(), player.data, player.data.healthHandler, player.GetComponent<Gravity>(), player.data.block, player.data.stats, (cardInfo, person, gun, gunAmmo, data, healthHandler, gravity, block, stats) => {
-                var result = false;
+            var enabled = CardChoice.instance.cards.ToArray();
+            var availableCurses = activeCurses.Where((card) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card) && condition(card, player)).ToArray();
 
-                result = activeCurses.Contains(cardInfo) && condition(cardInfo, person);
+            CardChoice.instance.cards = availableCurses;
 
-                return result;
-            }, 100);
+            CardInfo curse = null;
+
+            curse = ((GameObject)CardChoice.instance.InvokeMethod("GetRanomCard")).GetComponent<CardInfo>();
+
+            CardChoice.instance.cards = enabled;
 
             ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(curseCategory);
 
-            if (!curse)
+            if (!curse || !curses.Contains(curse))
             {
                 UnityEngine.Debug.Log($"[WWM][Debugging] curse didn't exist, getting one now.");
                 curse = FallbackMethod(activeCurses.ToArray());
