@@ -33,7 +33,7 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.2.1"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.2.2"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
 
         public static WillsWackyManagers instance;
@@ -71,7 +71,7 @@ namespace WillsWackyManagers
                 secondHalfTableFlip = Config.Bind(ModInitials, "TableFlipSecondHalf", true, "Makes Table Flip an Uncommon and only able to appear in the second half.");
             }
 
-            Unbound.RegisterMenu(ModName, () => { }, NewGUI, null, false);
+            Unbound.RegisterMenu("Will's Wacky Options", () => { }, NewGUI, null, false);
             Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
 
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, PlayerPickStart);

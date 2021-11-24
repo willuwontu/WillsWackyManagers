@@ -5,6 +5,10 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.2.2
+- Fixed an issue where curse cards would cause following players to get null cards.
+
+----
 ### v 1.2.1
 - Fixes some issues with lag when taking hex and other curse granting cards.
 

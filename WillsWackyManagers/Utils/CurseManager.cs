@@ -125,13 +125,13 @@ namespace WillsWackyManagers.Utils
             var enabled = CardChoice.instance.cards.ToArray();
             var availableCurses = activeCurses.Where((card) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card) && condition(card, player)).ToArray();
 
-            CardChoice.instance.cards = availableCurses;
+            //CardChoice.instance.cards = availableCurses;
 
-            CardInfo curse = null;
+            CardInfo curse = FallbackMethod(availableCurses);
 
-            curse = ((GameObject)CardChoice.instance.InvokeMethod("GetRanomCard")).GetComponent<CardInfo>();
+            //curse = ((GameObject)CardChoice.instance.InvokeMethod("GetRanomCard")).GetComponent<CardInfo>();
 
-            CardChoice.instance.cards = enabled;
+            //CardChoice.instance.cards = enabled;
 
             ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(curseCategory);
 
