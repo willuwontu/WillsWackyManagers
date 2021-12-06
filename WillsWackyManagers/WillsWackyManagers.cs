@@ -227,14 +227,16 @@ namespace WillsWackyManagers
             var curseSpawn = MenuHandler.CreateToggle(enableCurseSpawning.Value, "Enables curse spawning cards.", menu, null);
             var curseRemove = MenuHandler.CreateToggle(enableCurseRemoval.Value, "Enables curse removal between rounds.", menu, value => { enableCurseRemoval.Value = value; OnHandShakeCompleted(); });
             curseSpawn.GetComponent<Toggle>().onValueChanged.AddListener((value) => {
-                curseRemove.SetActive(value);
+                //curseRemove.SetActive(value);
                 if (!value)
                 {
-                    curseRemove.GetComponent<Toggle>().isOn = false;
+                    //curseRemove.GetComponent<Toggle>().isOn = false;
                 }
                 enableCurseSpawning.Value = value;
                 OnHandShakeCompleted();
             });
+            curseRemove.SetActive(false);
+            enableCurseRemoval.Value = false;
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _, 30);
             MenuHandler.CreateText("Reroll Manager", menu, out TextMeshProUGUI _, 45);
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _, 30);
