@@ -43,8 +43,6 @@ namespace WillsWackyManagers.Utils
 
         private void Start()
         {
-            instance = this;
-
             this.ExecuteAfterFrames(50, () =>
             {
                 foreach (var plugin in Chainloader.PluginInfos)
@@ -66,14 +64,29 @@ namespace WillsWackyManagers.Utils
             GameModeManager.AddHook(GameModeHooks.HookPickStart, OnPickStart);
 
             keepCurse = new CurseRemovalOption("Keep Curse", (player) => true, IKeepCurse);
-            removeRound = new CurseRemovalOption("-1 round, -1 curse", CondRemoveRound, IRemoveRound);
+            removeRound = new CurseRemovalOption("-1 round, -2 curses", CondRemoveRound, IRemoveRound);
             removeAllCards = new CurseRemovalOption("Lose all cards, lose all curses", CondRemoveAllCards, IRemoveAllCards);
-            giveExtraPick = new CurseRemovalOption("You: -1 curse, Enemies: +1 uncommon", CondGiveExtraPick, IGiveExtraPick);
+            giveExtraPick = new CurseRemovalOption("You: -2 curses, Enemies: +1 Pick", CondGiveExtraPick, IGiveExtraPick);
+            doNotAsk = new CurseRemovalOption("Do Not Ask Again (Permanently Choose to KEEP all Curses)", (player) => true, IStopAsking);
 
             RegisterRemovalOption(keepCurse);
             RegisterRemovalOption(giveExtraPick);
             RegisterRemovalOption(removeAllCards);
             RegisterRemovalOption(removeRound);
+            RegisterRemovalOption(doNotAsk);
+        }
+
+        private void Awake()
+        {
+            if (instance == null)
+            {
+                instance = this;
+            }
+            else if (instance != this)
+            {
+                DestroyImmediate(this);
+                return;
+            }
         }
 
         private void CheckCurses()
@@ -439,7 +452,7 @@ namespace WillsWackyManagers.Utils
         {
             var result = false;
             // Only shows up if they have a round point to remove.
-            if (GameModeManager.CurrentHandler.GetTeamScore(player.teamID).rounds > 0)
+            if (GameModeManager.CurrentHandler.GetTeamScore(player.teamID).rounds > 0 && GetAllCursesOnPlayer(player).Count() > 1)
             {
                 result = true;
             }
@@ -455,14 +468,31 @@ namespace WillsWackyManagers.Utils
             var roundCounter = GameObject.Find("/Game/UI/UI_Game/Canvas/RoundCounter").GetComponent<RoundCounter>();
             roundCounter.InvokeMethod("ReDraw");
 
-            for (var i = player.data.currentCards.Count() - 1; i >= 0; i--)
+            // Get the indexes of all curses on the player.
+            var curseIndices = Enumerable.Range(0, player.data.currentCards.Count()).Where((index) => player.data.currentCards[index].categories.Contains(curseCategory)).ToList();
+
+            // Create a new list for the indices.
+            var indicesToRemove = new List<int>();
+
+            // Randomly select 2 curses.
+            for (int i = 0; i < curseIndices.Count(); i++)
             {
-                if (instance.IsCurse(player.data.currentCards[i]))
+                if (UnityEngine.Random.Range(0f, 1f) <= 2f / (curseIndices.Count() - i - indicesToRemove.Count()))
                 {
-                    ModdingUtils.Utils.Cards.instance.RemoveCardFromPlayer(player, i);
+                    indicesToRemove.Add(curseIndices[i]);
+                }
+
+                if (indicesToRemove.Count >= 2)
+                {
                     break;
                 }
             }
+
+            ModdingUtils.Utils.Cards.instance.RemoveCardsFromPlayer(player, indicesToRemove.ToArray());
+
+            // Wait a second to let any card effects to occur.
+            yield return new WaitForSecondsRealtime(1f);
+
             yield break;
         }
 
@@ -470,12 +500,18 @@ namespace WillsWackyManagers.Utils
 
         private bool CondGiveExtraPick(Player player)
         {
-            var result = false;
+            var result = true;
 
             // It only shows up if they do not have the least amount of cards.
-            if (player.data.currentCards.Count() > PlayerManager.instance.players.Select((person) => person.data.currentCards.Count()).ToArray().Min())
+            if (player.data.currentCards.Count() <= PlayerManager.instance.players.Select((person) => person.data.currentCards.Count()).ToArray().Min())
             {
-                result = true;
+                result = false;
+            }
+
+            // Need to have at least 2 curses to remove.
+            if (GetAllCursesOnPlayer(player).Count() < 2)
+            {
+                result = false;
             }
 
             return result;
@@ -483,52 +519,53 @@ namespace WillsWackyManagers.Utils
 
         private IEnumerator IGiveExtraPick(Player player)
         {
-            for (var i = player.data.currentCards.Count() - 1; i >= 0; i--)
+            // Get all our enemies and give them a pick.
+            var enemies = PlayerManager.instance.players.Where((person) => person.teamID != player.teamID);
+            var pickers = enemies.ToDictionary((person) => person, (person) => 1);
+            yield return WillsWackyManagers.ExtraPicks(pickers);
+
+            // Wait a second to let any card effects to occur.
+            yield return new WaitForSecondsRealtime(1f);
+
+            // Get the indexes of all curses on the player.
+            var curseIndices = Enumerable.Range(0, player.data.currentCards.Count()).Where((index) => player.data.currentCards[index].categories.Contains(curseCategory)).ToList();
+
+            // Create a new list for the indices.
+            var indicesToRemove = new List<int>();
+
+            // Randomly select 2 curses.
+            for (int i = 0; i < curseIndices.Count(); i++)
             {
-                if (instance.IsCurse(player.data.currentCards[i]))
+                if (UnityEngine.Random.Range(0f, 1f) <= 2f / (curseIndices.Count() - i - indicesToRemove.Count()))
                 {
-                    var enemies = PlayerManager.instance.players.Where((person) => person.teamID != player.teamID);
-                    //var pickers = enemies.ToDictionary((person) => person, (person) => 1);
-                    //yield return WillsWackyManagers.ExtraPicks(pickers);
+                    indicesToRemove.Add(curseIndices[i]);
+                }
 
-                    foreach (var enemy in enemies)
-                    {
-                        var gun = enemy.GetComponent<Holding>().holdable.GetComponent<Gun>();
-                        var data = enemy.GetComponent<CharacterData>();
-                        var health = enemy.GetComponent<HealthHandler>();
-                        var gravity = enemy.GetComponent<Gravity>();
-                        var block = enemy.GetComponent<Block>();
-                        var gunAmmo = gun.GetComponentInChildren<GunAmmo>();
-                        var stats = enemy.GetComponent<CharacterStatModifiers>();
-
-                        var card = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(enemy, gun, gunAmmo, data, health, gravity, block, stats, UncommonCondition);
-
-                        ModdingUtils.Utils.Cards.instance.AddCardToPlayer(enemy, card, false, "", 2f, 2f, true);
-                    }
-
-                    ModdingUtils.Utils.Cards.instance.RemoveCardFromPlayer(player, i);
+                if (indicesToRemove.Count >= 2)
+                {
                     break;
                 }
             }
+
+            ModdingUtils.Utils.Cards.instance.RemoveCardsFromPlayer(player, indicesToRemove.ToArray());
+
+            // Wait a second to let any card effects to occur.
+            yield return new WaitForSecondsRealtime(1f);
+
+            // Exit our action
             yield break;
-        }
-
-        private bool UncommonCondition(CardInfo card, Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
-        {
-
-            return card.rarity == CardInfo.Rarity.Uncommon;
         }
 
         private CurseRemovalOption removeAllCards;
 
         private bool CondRemoveAllCards(Player player)
         {
-            var result = false;
+            var result = true;
 
             // We only want it to show up if they have 5 or more curses.
-            if (instance.GetAllCursesOnPlayer(player).Count() > 4)
+            if (instance.GetAllCursesOnPlayer(player).Count() <= 4)
             {
-                result = true;
+                result = false;
             }
 
             return result;
@@ -537,6 +574,14 @@ namespace WillsWackyManagers.Utils
         private IEnumerator IRemoveAllCards(Player player)
         {
             ModdingUtils.Utils.Cards.instance.RemoveAllCardsFromPlayer(player);
+            yield break;
+        }
+
+        private CurseRemovalOption doNotAsk;
+
+        private IEnumerator IStopAsking(Player player)
+        {
+            doNotAskPlayers.Add(player);
             yield break;
         }
 
@@ -579,12 +624,12 @@ namespace WillsWackyManagers.Utils
 
         private Dictionary<Player, int> curseCount = new Dictionary<Player, int>();
 
+        private List<Player> doNotAskPlayers = new List<Player>();
+
         private IEnumerator GiveCurseRemovalOptions(Player player)
         {
-            playerDeciding = true;
-            decidingPlayer = player;
-
-            StartCoroutine(TimeOut(player));
+            UnityEngine.Debug.Log($"[WWM][Curse Removal] Presenting Curse Removal options for player {player.playerID}.");
+            //StartCoroutine(TimeOut(player));
 
             var validOptions = removalOptions.Where((option) => option.condition(player)).ToList();
 
@@ -593,19 +638,20 @@ namespace WillsWackyManagers.Utils
                 UnityEngine.Debug.Log($"[WWM][Debugging] '{option.name}' is a valid curse removal option for player {player.playerID}.");
             }
 
-            List<string> choices; 
-            
-            choices = validOptions.Select((option) => option.name).ToList();
-            choices.Remove(keepCurse.name);
-            choices.Add(keepCurse.name); // We want keep curse to be the last option presented.
+            List<string> choices = new List<string>();
 
+            choices.Add(keepCurse.name); // We want keep curse to be the first option presented.
+            choices = choices.Concat(validOptions.Where((option) => option.name != keepCurse.name).Select((option) => option.name).ToList()).ToList();
+
+            playerDeciding = true;
+            decidingPlayer = player;
             choseAction = false;
 
             if (player.data.view.IsMine || PhotonNetwork.OfflineMode)
             {
                 try
                 {
-                    UI.PopUpMenu.instance.Open(choices, OnRemovalOptionChosen);
+                    RWF.UI.PopUpMenu.instance.Open(choices, OnRemovalOptionChosen);
                 }
                 catch (NullReferenceException)
                 {
@@ -620,7 +666,12 @@ namespace WillsWackyManagers.Utils
                 UIHandler.instance.ShowJoinGameText($"WAITING FOR {playerName}", PlayerSkinBank.GetPlayerSkinColors(player.teamID).winText);
             }
 
-            yield return new WaitUntil(() => !playerDeciding);
+            while (playerDeciding)
+            {
+                yield return null;
+            }
+
+            UIHandler.instance.HideJoinGameText();
 
             yield break;
         }
@@ -637,7 +688,7 @@ namespace WillsWackyManagers.Utils
                 }
                 else
                 {
-                    UI.PopUpMenu.instance.InvokeMethod("Choose");
+                    RWF.UI.PopUpMenu.instance.InvokeMethod("Choose");
                     yield return new WaitForSecondsRealtime(30f);
                 }
             }
@@ -661,7 +712,6 @@ namespace WillsWackyManagers.Utils
         private void RPC_ExecuteChosenOption(string choice)
         {
             ExecuteChosenOption(choice);
-            choseAction = true;
         }
 
         private void ExecuteChosenOption(string choice)
@@ -671,6 +721,9 @@ namespace WillsWackyManagers.Utils
 
         private IEnumerator IExecuteChosenOption(string choice)
         {
+            UnityEngine.Debug.Log($"[WWM][Curse Removal] Player {decidingPlayer.playerID} picked the \"{choice}\" curse removal option. Now executing.");
+
+            choseAction = true;
             var chosenAction = removalOptions.Where((option) => option.name == choice).FirstOrDefault().action;
 
             yield return chosenAction(decidingPlayer);
@@ -686,30 +739,47 @@ namespace WillsWackyManagers.Utils
         private IEnumerator OnPickStart(IGameModeHandler gm)
         {
             // If using the curse removal options
-            if (WillsWackyManagers.enableCurseRemoval.Value)
+            if (WillsWackyManagers.enableCurseRemoval && Networking.SettingCoordinator.instance.Synced)
             {
-                // Create a list of our current values
-                var current = PlayerManager.instance.players.ToDictionary((player) => player, (player) => GetAllCursesOnPlayer(player).Count());
+                UnityEngine.Debug.Log($"[WWM][Curse Removal] Curse Removal Options are enabled.");
 
                 foreach (var player in PlayerManager.instance.players)
                 {
+                    var currentCurses = GetAllCursesOnPlayer(player).Count();
+                    var presentRemovalOption = false;
+
                     // The player values do not exist initially.
                     if (curseCount.TryGetValue(player, out var curses))
                     {
                         // if they've gained curses since last round
-                        if (current[player] > curses)
+                        if (GetAllCursesOnPlayer(player).Count() > curses)
                         {
                             // give option to remove curses
-                            yield return GiveCurseRemovalOptions(player);
+                            presentRemovalOption = true;
                         }
                     }
                     else
                     {
                         // if the value didn't exist, we see if they have any curses
-                        if (current[player] > 0)
+                        if (currentCurses > 0)
                         {
-                            yield return GiveCurseRemovalOptions(player);
+                            presentRemovalOption = true;
                         }
+                    }
+
+                    if (currentCurses > 0)
+                    {
+                        presentRemovalOption = true;
+                    }
+
+                    if (doNotAskPlayers.Contains(player))
+                    {
+                        presentRemovalOption = false;
+                    }
+
+                    if (presentRemovalOption)
+                    {
+                        yield return GiveCurseRemovalOptions(player);
                     }
                 }
 
@@ -717,10 +787,8 @@ namespace WillsWackyManagers.Utils
 
                 // Clear and rebuild our curse tracker
                 curseCount.Clear();
-                foreach (var player in PlayerManager.instance.players)
-                {
-                    curseCount.Add(player, GetAllCursesOnPlayer(player).Count());
-                }
+
+                curseCount = PlayerManager.instance.players.ToDictionary((player) => player, (player) => GetAllCursesOnPlayer(player).Count());
             }
 
             yield break;

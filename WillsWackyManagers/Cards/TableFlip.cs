@@ -46,7 +46,7 @@ namespace WillsWackyManagers.Cards
         }
         protected override CardInfo.Rarity GetRarity()
         {
-            return WillsWackyManagers.secondHalfTableFlip.Value ? CardInfo.Rarity.Uncommon : CardInfo.Rarity.Rare;
+            return WillsWackyManagers.secondHalfTableFlipConfig.Value ? CardInfo.Rarity.Uncommon : CardInfo.Rarity.Rare;
         }
         protected override CardInfoStat[] GetStats()
         {

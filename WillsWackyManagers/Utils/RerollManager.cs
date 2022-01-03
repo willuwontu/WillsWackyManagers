@@ -58,10 +58,17 @@ namespace WillsWackyManagers.Utils
 
         private System.Random random = new System.Random();
 
-
-        private void Start()
+        private void Awake()
         {
-            instance = this;
+            if (instance == null)
+            {
+                instance = this;
+            }
+            else if (instance != this)
+            {
+                DestroyImmediate(this);
+                return;
+            }
         }
 
         public List<Player> MixUpPlayers = new List<Player>();

@@ -31,6 +31,9 @@
     <Reference Include="ModdingUtils">
       <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\ModdingUtils.dll</HintPath>
     </Reference>
+    <Reference Include="Photon3Unity3D">
+      <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\Photon3Unity3D.dll</HintPath>
+    </Reference>
     <Reference Include="PhotonRealtime">
       <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\PhotonRealtime.dll</HintPath>
     </Reference>
@@ -67,6 +70,10 @@
     <Reference Include="UnityEngine.UIElementsModule">
       <HintPath>..\..\..\Visual Studio 2019\Projects\Rounds\Dependencies\UnityEngine.UIElementsModule.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Patches\" />
   </ItemGroup>
 
 </Project>

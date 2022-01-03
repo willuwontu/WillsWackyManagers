@@ -5,6 +5,22 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.2.6
+- Setting Sync was working, I just had left some spaghetti code in that made it not be read.
+
+----
+### v 1.2.5
+- Setting Sync should work now.
+
+----
+### v 1.2.4
+- Reworked settings synchronization, hopefully it works now.
+
+----
+### v 1.2.3
+- Logic patches, hopefully curse removal options should now work.
+
+----
 ### v 1.2.2
 - Fixed an issue where curse cards would cause following players to get null cards.
 

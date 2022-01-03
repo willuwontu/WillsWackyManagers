@@ -15,6 +15,7 @@ using TMPro;
 using HarmonyLib;
 using Photon.Pun;
 using WillsWackyManagers.Cards;
+using WillsWackyManagers.Networking;
 using UnityEngine.UI;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 
@@ -33,16 +34,20 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.2.2"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.2.6"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
 
         public static WillsWackyManagers instance;
 
-        public static ConfigEntry<bool> enableCurseRemoval;
-        public static ConfigEntry<bool> enableCurseSpawning;
+        public static bool enableCurseRemoval = false;
+        public static bool enableCurseSpawning = true;
+        public static ConfigEntry<bool> enableCurseRemovalConfig;
+        public static ConfigEntry<bool> enableCurseSpawningConfig;
 
-        public static ConfigEntry<bool> enableTableFlip;
-        public static ConfigEntry<bool> secondHalfTableFlip;
+        public static bool enableTableFlip = true;
+        public static bool secondHalfTableFlip = true;
+        public static ConfigEntry<bool> enableTableFlipConfig;
+        public static ConfigEntry<bool> secondHalfTableFlipConfig;
 
         // A way for me to hook onto the menu and add more options in WWC, if needed.
         public GameObject optionsMenu;
@@ -58,17 +63,23 @@ namespace WillsWackyManagers
         {
             instance = this;
 
+            gameObject.AddComponent<SettingCoordinator>();
+
             gameObject.GetOrAddComponent<RerollManager>();
             gameObject.GetOrAddComponent<CurseManager>();
 
             { // Config File Stuff
                 // Curse Manager Settings
-                enableCurseSpawning = Config.Bind(ModInitials, "CurseSpawning", true, "Cards that give curse can spawn.");
-                enableCurseRemoval = Config.Bind(ModInitials, "CurseRemoval", false, "Enables curse removal via end of round effects.");
+                enableCurseSpawningConfig = Config.Bind(ModInitials, "CurseSpawning", true, "Cards that give curses can spawn.");
+                enableCurseRemovalConfig = Config.Bind(ModInitials, "CurseRemoval", false, "Enables curse removal via end of round effects.");
+                enableCurseRemoval = enableCurseRemovalConfig.Value;
+                enableCurseSpawning = enableCurseSpawningConfig.Value;
 
                 // Reroll Manager Settings
-                enableTableFlip = Config.Bind(ModInitials, "TableFlipAllowed", true, "Enable table flip and reroll.");
-                secondHalfTableFlip = Config.Bind(ModInitials, "TableFlipSecondHalf", true, "Makes Table Flip an Uncommon and only able to appear in the second half.");
+                enableTableFlipConfig = Config.Bind(ModInitials, "TableFlipAllowed", true, "Enable table flip and reroll.");
+                secondHalfTableFlipConfig = Config.Bind(ModInitials, "TableFlipSecondHalf", true, "Makes Table Flip an Uncommon and only able to appear in the second half.");
+                enableTableFlip = enableTableFlipConfig.Value;
+                secondHalfTableFlip = secondHalfTableFlipConfig.Value;
             }
 
             Unbound.RegisterMenu("Will's Wacky Options", () => { }, NewGUI, null, false);
@@ -153,7 +164,7 @@ namespace WillsWackyManagers
                 }
 
                 // If Reroll cards are disabled, we blacklist them as an option to be taken.
-                if (!enableTableFlip.Value)
+                if (!enableTableFlip)
                 {
                     if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(RerollManager.instance.NoFlip))
                     {
@@ -166,7 +177,7 @@ namespace WillsWackyManagers
                 }
 
                 // If curse spawning cards are disabled, we blacklist them as an option for players.
-                if (!enableCurseSpawning.Value)
+                if (!enableCurseSpawning)
                 {
                     if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseSpawnerCategory))
                     {
@@ -184,7 +195,7 @@ namespace WillsWackyManagers
 
         private IEnumerator PickStart(IGameModeHandler gm)
         {
-            if (secondHalfTableFlip.Value)
+            if (secondHalfTableFlip)
             {
                 RerollManager.instance.tableFlipCard.rarity = CardInfo.Rarity.Uncommon;
 
@@ -224,24 +235,24 @@ namespace WillsWackyManagers
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _, 30);
             MenuHandler.CreateText("Curse Manager", menu, out TextMeshProUGUI _, 45);
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _, 30);
-            var curseSpawn = MenuHandler.CreateToggle(enableCurseSpawning.Value, "Enables curse spawning cards.", menu, null);
-            var curseRemove = MenuHandler.CreateToggle(enableCurseRemoval.Value, "Enables curse removal between rounds.", menu, value => { enableCurseRemoval.Value = value; OnHandShakeCompleted(); });
+            var curseSpawn = MenuHandler.CreateToggle(enableCurseSpawningConfig.Value, "Enables curse spawning cards.", menu, null);
+            var curseRemove = MenuHandler.CreateToggle(enableCurseRemovalConfig.Value, "Enables curse removal between rounds.", menu, value => { enableCurseRemovalConfig.Value = value; enableCurseRemoval = value; });
             curseSpawn.GetComponent<Toggle>().onValueChanged.AddListener((value) => {
-                //curseRemove.SetActive(value);
+                curseRemove.SetActive(value);
                 if (!value)
                 {
-                    //curseRemove.GetComponent<Toggle>().isOn = false;
+                    curseRemove.GetComponent<Toggle>().isOn = false;
                 }
-                enableCurseSpawning.Value = value;
-                OnHandShakeCompleted();
+                enableCurseSpawningConfig.Value = value;
+                enableCurseSpawning = value;
             });
-            curseRemove.SetActive(false);
-            enableCurseRemoval.Value = false;
+            //curseRemove.SetActive(false);
+            //enableCurseRemoval.Value = false;
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _, 30);
             MenuHandler.CreateText("Reroll Manager", menu, out TextMeshProUGUI _, 45);
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _, 30);
-            var enable = MenuHandler.CreateToggle(enableTableFlip.Value, "Enable Table Flip and Reroll", menu, null);
-            var secondHalf = MenuHandler.CreateToggle(secondHalfTableFlip.Value, "Table Flip becomes uncommon, and can only show up when someone has half the rounds needed to win.", menu, value => { secondHalfTableFlip.Value = value; OnHandShakeCompleted(); });
+            var enable = MenuHandler.CreateToggle(enableTableFlipConfig.Value, "Enable Table Flip and Reroll", menu, null);
+            var secondHalf = MenuHandler.CreateToggle(secondHalfTableFlipConfig.Value, "Table Flip becomes uncommon, and can only show up when someone has half the rounds needed to win.", menu, value => { secondHalfTableFlipConfig.Value = value; secondHalfTableFlip = value; });
             var secondHalfToggle = secondHalf.GetComponent<Toggle>();
 
             enable.GetComponent<Toggle>().onValueChanged.AddListener(value =>
@@ -251,8 +262,8 @@ namespace WillsWackyManagers
                 {
                     secondHalfToggle.isOn = false;
                 }
-                enableTableFlip.Value = value;
-                OnHandShakeCompleted();
+                enableTableFlipConfig.Value = value;
+                enableTableFlip = value;
             });
 
             instance.optionsMenu = menu;
@@ -260,35 +271,36 @@ namespace WillsWackyManagers
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _);
         }
 
-        private static void OnHandShakeCompleted()
+        internal void OnHandShakeCompleted()
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                NetworkingManager.RPC_Others(typeof(WillsWackyManagers), nameof(SyncSettings),
-                    new[] { enableCurseSpawning.Value, enableCurseRemoval.Value, enableTableFlip.Value, secondHalfTableFlip.Value });
+                for (int i = 0; i < 1; i++)
+                {
+                    NetworkingManager.RPC(typeof(WillsWackyManagers), nameof(RPCA_SyncSettings), new object[] { enableCurseSpawningConfig.Value, enableCurseRemovalConfig.Value, enableTableFlipConfig.Value, secondHalfTableFlipConfig.Value });
+                    RPCA_SyncSettings(enableCurseSpawningConfig.Value, enableCurseRemovalConfig.Value, enableTableFlipConfig.Value, secondHalfTableFlipConfig.Value);
+                }
             }
         }
 
         [UnboundRPC]
-        private static void SyncSettings(bool curseSpawningEnabled, bool curseRemovalEnabled, bool tableFlipEnabled, bool tableFlipSecondHalf)
+        private static void RPCA_SyncSettings(bool curseSpawningEnabled, bool curseRemovalEnabled, bool tableFlipEnabled, bool tableFlipSecondHalf)
         {
-            enableCurseSpawning.Value = curseSpawningEnabled;
-            enableCurseRemoval.Value = curseRemovalEnabled;
-            enableTableFlip.Value = tableFlipEnabled;
-            secondHalfTableFlip.Value = tableFlipSecondHalf;
-        }
+            enableCurseSpawningConfig.Value = curseSpawningEnabled;
+            enableCurseRemovalConfig.Value = curseRemovalEnabled;
+            enableTableFlipConfig.Value = tableFlipEnabled;
+            secondHalfTableFlipConfig.Value = tableFlipSecondHalf;
 
-        public void InjectUIElements()
-        {
-            var uiGo = GameObject.Find("/Game/UI");
-            var gameGo = uiGo.transform.Find("UI_Game").Find("Canvas").gameObject;
+            enableCurseSpawning = curseSpawningEnabled;
+            enableCurseRemoval = curseRemovalEnabled;
+            enableTableFlip = tableFlipEnabled;
+            secondHalfTableFlip = tableFlipSecondHalf;
 
-            var popupGo = gameGo.transform.Find("PopUpMenu").gameObject;
+            UnityEngine.Debug.Log($"[WWM][Settings][Sync]\nEnable Curse Spawning: {curseSpawningEnabled}\nEnable Curse Removal: {curseRemovalEnabled}\nEnable Table Flip: {tableFlipEnabled}\nTable Flip Second Half Only: {tableFlipSecondHalf}");
 
-            if (popupGo)
-            {
-                popupGo.GetOrAddComponent<Utils.UI.PopUpMenu>();
-            }
+            ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+            customProperties[SettingCoordinator.PropertyName] = true;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
         }
 
 
@@ -304,15 +316,16 @@ namespace WillsWackyManagers
         {
             yield return new WaitForSecondsRealtime(1f);
 
-            while (pickers.Values.Max() > 0)
+            for (int _ = 0; _ < pickers.Values.ToArray().Max(); _++)
             {
-                foreach (var player in pickers.Keys)
+                for (int i = 0; i < pickers.Keys.Count; i++)
                 {
-                    if (pickers[player] <= 0)
+                    var player = pickers.Keys.ToArray()[i];
+                    if (pickers[player] > 0)
                     {
                         yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
                         CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i => PlayerManager.instance.players[i].playerID == player.playerID).First(), true);
-                        yield return CardChoice.instance.DoPick(1, pickers[player], PickerType.Player);
+                        yield return CardChoice.instance.DoPick(1, player.playerID, PickerType.Player);
                         yield return new WaitForSecondsRealtime(0.1f);
                         yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
                         yield return new WaitForSecondsRealtime(0.1f);
