@@ -198,7 +198,7 @@ namespace WillsWackyManagers.Utils
                             var card = RandomCard(cardChoices);
                             UnityEngine.Debug.Log($"[WWM][Debugging] Player {player.playerID} is being given {card.cardName}");
                             ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
-                            ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
+                            yield return ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card, 1f);
                         }
                     }
                     ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
@@ -213,7 +213,7 @@ namespace WillsWackyManagers.Utils
             {
                 // Add the tableflip card to the player
                 ModdingUtils.Utils.Cards.instance.AddCardToPlayer(flippingPlayer, tableFlipCard, true, "", 2f, 2f, true);
-                ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(flippingPlayer, tableFlipCard);
+                yield return ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(flippingPlayer, tableFlipCard, 2f);
             }
             yield return WaitFor.Frames(40);
 

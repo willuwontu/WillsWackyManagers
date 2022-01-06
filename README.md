@@ -5,6 +5,10 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.2.7
+- Added a sync function for end of curse removal execution.
+
+----
 ### v 1.2.6
 - Setting Sync was working, I just had left some spaghetti code in that made it not be read.
 

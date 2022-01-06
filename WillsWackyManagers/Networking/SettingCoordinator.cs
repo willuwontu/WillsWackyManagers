@@ -76,10 +76,6 @@ namespace WillsWackyManagers.Networking
                 {
                     WillsWackyManagers.instance.OnHandShakeCompleted();
                 }
-                else
-                {
-                    UnityEngine.Debug.Log("[WWM][Settings] Settings are all synched.");
-                }
             }
         }
     }

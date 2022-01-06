@@ -67,7 +67,7 @@ namespace WillsWackyManagers.Utils
             removeRound = new CurseRemovalOption("-1 round, -2 curses", CondRemoveRound, IRemoveRound);
             removeAllCards = new CurseRemovalOption("Lose all cards, lose all curses", CondRemoveAllCards, IRemoveAllCards);
             giveExtraPick = new CurseRemovalOption("You: -2 curses, Enemies: +1 Pick", CondGiveExtraPick, IGiveExtraPick);
-            doNotAsk = new CurseRemovalOption("Do Not Ask Again (Permanently Choose to KEEP all Curses)", (player) => true, IStopAsking);
+            doNotAsk = new CurseRemovalOption("Do Not Ask Again", (player) => true, IStopAsking);
 
             RegisterRemovalOption(keepCurse);
             RegisterRemovalOption(giveExtraPick);
@@ -666,10 +666,7 @@ namespace WillsWackyManagers.Utils
                 UIHandler.instance.ShowJoinGameText($"WAITING FOR {playerName}", PlayerSkinBank.GetPlayerSkinColors(player.teamID).winText);
             }
 
-            while (playerDeciding)
-            {
-                yield return null;
-            }
+            yield return new WaitUntil(() => !playerDeciding);
 
             UIHandler.instance.HideJoinGameText();
 
@@ -700,7 +697,7 @@ namespace WillsWackyManagers.Utils
         {
             if (!PhotonNetwork.OfflineMode)
             {
-                decidingPlayer.data.view.RPC(nameof(RPC_ExecuteChosenOption), RpcTarget.All, choice);
+                decidingPlayer.data.view.RPC(nameof(RPCA_ExecuteChosenOption), RpcTarget.AllViaServer, choice);
             }
             else
             {
@@ -709,7 +706,7 @@ namespace WillsWackyManagers.Utils
         }
 
         [PunRPC]
-        private void RPC_ExecuteChosenOption(string choice)
+        private void RPCA_ExecuteChosenOption(string choice)
         {
             ExecuteChosenOption(choice);
         }
@@ -728,9 +725,17 @@ namespace WillsWackyManagers.Utils
 
             yield return chosenAction(decidingPlayer);
 
-            playerDeciding = false;
+            decidingPlayer.data.view.RPC(nameof(RPCA_ExecutionOver), RpcTarget.AllViaServer, decidingPlayer.playerID);
         }
 
+        [PunRPC]
+        private void RPCA_ExecutionOver(int playerID)
+        {
+            if (decidingPlayer == PlayerManager.instance.players.Where(player => player.playerID == playerID).First())
+            {
+                playerDeciding = false;
+            }
+        }
 
         /**************************
         ***** Game Mode Hooks *****
