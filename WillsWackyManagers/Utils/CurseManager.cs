@@ -92,10 +92,10 @@ namespace WillsWackyManagers.Utils
         private void CheckCurses()
         {
             activeCurses = curses.Intersect(CardManager.cards.Values.ToArray().Where((card) => card.enabled).Select(card => card.cardInfo).ToArray()).ToList();
-            foreach (var item in activeCurses)
-            {
-                UnityEngine.Debug.Log($"[WWM][Debugging] {item.cardName} is an enabled curse.");
-            }
+            //foreach (var item in activeCurses)
+            //{
+            //    WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {item.cardName} is an enabled curse.");
+            //}
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace WillsWackyManagers.Utils
 
             if (!curse || !curses.Contains(curse))
             {
-                UnityEngine.Debug.Log($"[WWM][Debugging] curse didn't exist, getting one now.");
+                WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] curse didn't exist, getting one now.");
                 curse = FallbackMethod(activeCurses.ToArray());
                 if (!curse)
                 {
@@ -184,7 +184,7 @@ namespace WillsWackyManagers.Utils
 
             var chosenWeight = UnityEngine.Random.Range(0f, totalWeight);
 
-            //UnityEngine.Debug.Log($"[WWM][Debugging] {chosenWeight}/{totalWeight} weight chosen.");
+            //WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {chosenWeight}/{totalWeight} weight chosen.");
 
             foreach (var cardInfo in availableChoices)
             {
@@ -201,7 +201,7 @@ namespace WillsWackyManagers.Utils
                         break;
                 }
 
-                //UnityEngine.Debug.Log($"[WWM][Debugging] {cardInfo.cardName} reduced weight to {chosenWeight}.");
+                //WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {cardInfo.cardName} reduced weight to {chosenWeight}.");
 
                 if (chosenWeight <= 0f)
                 {
@@ -260,7 +260,7 @@ namespace WillsWackyManagers.Utils
                 curse = RandomCurse(player);
             }
 
-            UnityEngine.Debug.Log($"[WWM][Curse Manager] Player {player.playerID} cursed with {curse.cardName}.");
+            WillsWackyManagers.instance.DebugLog($"[WWM][Curse Manager] Player {player.playerID} cursed with {curse.cardName}.");
             ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, curse, false, "", 2f, 2f, true);
             callback?.Invoke(curse);
         }
@@ -608,7 +608,7 @@ namespace WillsWackyManagers.Utils
         {
             if (removalOptions.Select((item) => item.name).Contains(option.name))
             {
-                UnityEngine.Debug.Log($"[WWM][Debugging] A curse removal option called '{option.name}' already exists.");
+                WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] A curse removal option called '{option.name}' already exists.");
                 return;
             }
             removalOptions.Add(option);
@@ -628,14 +628,14 @@ namespace WillsWackyManagers.Utils
 
         private IEnumerator GiveCurseRemovalOptions(Player player)
         {
-            UnityEngine.Debug.Log($"[WWM][Curse Removal] Presenting Curse Removal options for player {player.playerID}.");
+            WillsWackyManagers.instance.DebugLog($"[WWM][Curse Removal] Presenting Curse Removal options for player {player.playerID}.");
             //StartCoroutine(TimeOut(player));
 
             var validOptions = removalOptions.Where((option) => option.condition(player)).ToList();
 
             foreach (var option in validOptions)
             {
-                UnityEngine.Debug.Log($"[WWM][Debugging] '{option.name}' is a valid curse removal option for player {player.playerID}.");
+                WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] '{option.name}' is a valid curse removal option for player {player.playerID}.");
             }
 
             List<string> choices = new List<string>();
@@ -655,7 +655,7 @@ namespace WillsWackyManagers.Utils
                 }
                 catch (NullReferenceException)
                 {
-                    UnityEngine.Debug.Log($"[WWM][Debugging] Popup menu doesn't exist.");
+                    WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Popup menu doesn't exist.");
                     choseAction = true;
                     playerDeciding = false;
                 }
@@ -718,7 +718,7 @@ namespace WillsWackyManagers.Utils
 
         private IEnumerator IExecuteChosenOption(string choice)
         {
-            UnityEngine.Debug.Log($"[WWM][Curse Removal] Player {decidingPlayer.playerID} picked the \"{choice}\" curse removal option. Now executing.");
+            WillsWackyManagers.instance.DebugLog($"[WWM][Curse Removal] Player {decidingPlayer.playerID} picked the \"{choice}\" curse removal option. Now executing.");
 
             choseAction = true;
             var chosenAction = removalOptions.Where((option) => option.name == choice).FirstOrDefault().action;
@@ -746,7 +746,7 @@ namespace WillsWackyManagers.Utils
             // If using the curse removal options
             if (WillsWackyManagers.enableCurseRemoval && Networking.SettingCoordinator.instance.Synced)
             {
-                UnityEngine.Debug.Log($"[WWM][Curse Removal] Curse Removal Options are enabled.");
+                WillsWackyManagers.instance.DebugLog($"[WWM][Curse Removal] Curse Removal Options are enabled.");
 
                 foreach (var player in PlayerManager.instance.players)
                 {
@@ -807,7 +807,7 @@ namespace WillsWackyManagers.Utils
             }
             catch (NullReferenceException)
             {
-                UnityEngine.Debug.Log($"[WWM][Debugging] Clearing curse count caused an error");
+                WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Clearing curse count caused an error");
             }
 
             try
@@ -816,7 +816,7 @@ namespace WillsWackyManagers.Utils
             }
             catch (NullReferenceException)
             {
-                UnityEngine.Debug.Log($"[WWM][Debugging] Building a dictionary caused an error.");
+                WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Building a dictionary caused an error.");
             }
 
             yield break;

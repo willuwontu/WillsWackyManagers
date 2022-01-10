@@ -5,6 +5,10 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.2.8
+- Fixed an issue with Table Flip
+
+----
 ### v 1.2.7
 - Added a sync function for end of curse removal execution.
 

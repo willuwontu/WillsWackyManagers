@@ -34,7 +34,7 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.2.7"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.2.8"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
 
         public static WillsWackyManagers instance;
@@ -51,6 +51,8 @@ namespace WillsWackyManagers
 
         // A way for me to hook onto the menu and add more options in WWC, if needed.
         public GameObject optionsMenu;
+
+        private const bool debug = false;
 
         void Awake()
         {
@@ -96,6 +98,14 @@ namespace WillsWackyManagers
             CustomCard.BuildCard<Reroll>((cardInfo) => { RerollManager.instance.rerollCard = cardInfo; });
         }
 
+        public void DebugLog(object message)
+        {
+            if (debug)
+            {
+                UnityEngine.Debug.Log(message);
+            }
+        }
+
         IEnumerator PickEnd(IGameModeHandler gm)
         {
             yield return new WaitForSecondsRealtime(1f);
@@ -117,7 +127,7 @@ namespace WillsWackyManagers
                 if (CurseManager.instance.HasCurse(player))
                 {
                     ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
-                    UnityEngine.Debug.Log($"[WWM] Player {player.playerID} is available for curse interaction effects");
+                    WillsWackyManagers.instance.DebugLog($"[WWM] Player {player.playerID} is available for curse interaction effects");
                 }
             }
             yield break;
@@ -296,7 +306,7 @@ namespace WillsWackyManagers
             enableTableFlip = tableFlipEnabled;
             secondHalfTableFlip = tableFlipSecondHalf;
 
-            UnityEngine.Debug.Log($"[WWM][Settings][Sync]\nEnable Curse Spawning: {curseSpawningEnabled}\nEnable Curse Removal: {curseRemovalEnabled}\nEnable Table Flip: {tableFlipEnabled}\nTable Flip Second Half Only: {tableFlipSecondHalf}");
+            WillsWackyManagers.instance.DebugLog($"[WWM][Settings][Sync]\nEnable Curse Spawning: {curseSpawningEnabled}\nEnable Curse Removal: {curseRemovalEnabled}\nEnable Table Flip: {tableFlipEnabled}\nTable Flip Second Half Only: {tableFlipSecondHalf}");
 
             ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
             customProperties[SettingCoordinator.PropertyName] = true;
