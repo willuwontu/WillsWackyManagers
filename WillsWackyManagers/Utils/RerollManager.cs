@@ -8,6 +8,8 @@ using UnboundLib;
 using UnboundLib.Utils;
 using ModdingUtils.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
+using Photon.Pun;
+using WillsWackyManagers.Networking;
 
 namespace WillsWackyManagers.Utils
 {
@@ -216,10 +218,10 @@ namespace WillsWackyManagers.Utils
                         }
                     }
                     ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
-                    yield return WaitFor.Frames(40);
+                    yield return WaitFor.Frames(30);
                 }
 
-                yield return WaitFor.Frames(40);
+                yield return WaitFor.Frames(30);
             }
             WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Finished adding cards to players.");
 
@@ -229,11 +231,43 @@ namespace WillsWackyManagers.Utils
                 ModdingUtils.Utils.Cards.instance.AddCardToPlayer(flippingPlayer, tableFlipCard, true, "", 2f, 2f, true);
                 //yield return ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(flippingPlayer, tableFlipCard, 2f);
             }
-            yield return WaitFor.Frames(40);
+            yield return WaitFor.Frames(20);
 
             flippingPlayer = null;
             tableFlipped = false;
+
+            ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+            customProperties[SettingCoordinator.TableFlipSyncProperty] = true;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+
+            var inSync = false;
+
+            while (!inSync && !PhotonNetwork.OfflineMode)
+            {
+                inSync = true;
+                foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
+                {
+                    if (player.CustomProperties.TryGetValue(SettingCoordinator.TableFlipSyncProperty, out var status))
+                    {
+                        if (!((bool)status))
+                        {
+                            inSync = false;
+                        }
+                    }
+                    else
+                    {
+                        inSync = false;
+                    }
+                }
+
+                yield return null;
+            }
+
+            yield return WaitFor.Frames(20);
+
             yield return null;
+
+            yield break;
         }
 
         private List<Player> flippedPlayers = new List<Player>();

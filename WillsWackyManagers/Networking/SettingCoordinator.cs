@@ -10,7 +10,8 @@ namespace WillsWackyManagers.Networking
     internal class SettingCoordinator : MonoBehaviourPunCallbacks
     {
         internal bool Synced { get; private set; }
-        internal const string PropertyName = "WWM Settings";
+        internal const string SettingsPropertyName = "WWM Settings";
+        internal const string TableFlipSyncProperty = "Table Flip Sync Stats";
 
         public static SettingCoordinator instance;
 
@@ -34,10 +35,12 @@ namespace WillsWackyManagers.Networking
 
         public override void OnJoinedRoom()
         {
-            //Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
-            //var settings = new bool[] { WillsWackyManagers.enableCurseRemovalConfig.Value, WillsWackyManagers.enableCurseSpawningConfig.Value, WillsWackyManagers.enableTableFlipConfig.Value, WillsWackyManagers.secondHalfTableFlipConfig.Value };
-            //customProperties[PropertyName] = settings;
-            //PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+            Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+            if (!customProperties.ContainsKey(TableFlipSyncProperty))
+            {
+                customProperties[TableFlipSyncProperty] = false;
+            }
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
 
             WillsWackyManagers.instance.OnHandShakeCompleted();
         }
@@ -54,12 +57,12 @@ namespace WillsWackyManagers.Networking
 
         public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps)
         {
-            if (changedProps.ContainsKey(PropertyName))
+            if (changedProps.ContainsKey(SettingsPropertyName))
             {
                 Synced = true;
                 foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
                 {
-                    if (player.CustomProperties.TryGetValue(PropertyName, out var status))
+                    if (player.CustomProperties.TryGetValue(SettingsPropertyName, out var status))
                     {
                         if (!((bool) status))
                         {

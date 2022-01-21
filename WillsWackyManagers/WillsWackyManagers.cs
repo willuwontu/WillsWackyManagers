@@ -141,6 +141,13 @@ namespace WillsWackyManagers
             }
             yield return new WaitUntil(() => RerollManager.instance.tableFlipped == false);
 
+            if (!PhotonNetwork.OfflineMode)
+            {
+                ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+                customProperties[SettingCoordinator.TableFlipSyncProperty] = false;
+                PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+            }
+
             if (RerollManager.instance.reroll)
             {
                 StartCoroutine(RerollManager.instance.InitiateRerolls());
@@ -309,7 +316,7 @@ namespace WillsWackyManagers
             WillsWackyManagers.instance.DebugLog($"[WWM][Settings][Sync]\nEnable Curse Spawning: {curseSpawningEnabled}\nEnable Curse Removal: {curseRemovalEnabled}\nEnable Table Flip: {tableFlipEnabled}\nTable Flip Second Half Only: {tableFlipSecondHalf}");
 
             ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
-            customProperties[SettingCoordinator.PropertyName] = true;
+            customProperties[SettingCoordinator.SettingsPropertyName] = true;
             PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
         }
 
