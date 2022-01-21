@@ -5,6 +5,11 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.2.9
+- Added a sync up operation to table flip, this should hopefully solve the issue of it breaking the game.
+- Swapped to Unbound RPCs for Curse Removal, this should hopefully solve the issue of it not working.
+
+----
 ### v 1.2.8
 - Fixed an issue with Table Flip
 

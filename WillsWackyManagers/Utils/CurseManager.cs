@@ -720,6 +720,8 @@ namespace WillsWackyManagers.Utils
 
         private IEnumerator IExecuteChosenOption(string choice)
         {
+            UIHandler.instance.HideJoinGameText();
+
             WillsWackyManagers.instance.DebugLog($"[WWM][Curse Removal] Player {decidingPlayer.playerID} picked the \"{choice}\" curse removal option. Now executing.");
 
             choseAction = true;
