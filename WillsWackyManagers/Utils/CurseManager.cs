@@ -4,6 +4,7 @@ using System.Linq;
 using UnboundLib;
 using UnboundLib.GameModes;
 using UnboundLib.Utils;
+using UnboundLib.Networking;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
 using System;
@@ -697,7 +698,8 @@ namespace WillsWackyManagers.Utils
         {
             if (!PhotonNetwork.OfflineMode)
             {
-                decidingPlayer.data.view.RPC(nameof(RPCA_ExecuteChosenOption), RpcTarget.AllViaServer, choice);
+                //decidingPlayer.data.view.RPC(nameof(RPCA_ExecuteChosenOption), RpcTarget.AllViaServer, choice);
+                NetworkingManager.RPC(typeof(CurseManager), nameof(RPCA_ExecuteChosenOption), choice);
             }
             else
             {
@@ -705,10 +707,10 @@ namespace WillsWackyManagers.Utils
             }
         }
 
-        [PunRPC]
-        private void RPCA_ExecuteChosenOption(string choice)
+        [UnboundRPC]
+        private static void RPCA_ExecuteChosenOption(string choice)
         {
-            ExecuteChosenOption(choice);
+            CurseManager.instance.ExecuteChosenOption(choice);
         }
 
         private void ExecuteChosenOption(string choice)
@@ -725,15 +727,24 @@ namespace WillsWackyManagers.Utils
 
             yield return chosenAction(decidingPlayer);
 
-            decidingPlayer.data.view.RPC(nameof(RPCA_ExecutionOver), RpcTarget.AllViaServer, decidingPlayer.playerID);
-        }
-
-        [PunRPC]
-        private void RPCA_ExecutionOver(int playerID)
-        {
-            if (decidingPlayer == PlayerManager.instance.players.Where(player => player.playerID == playerID).First())
+            //decidingPlayer.data.view.RPC(nameof(RPCA_ExecutionOver), RpcTarget.AllViaServer, decidingPlayer.playerID);
+            if (!PhotonNetwork.OfflineMode)
+            {
+                //decidingPlayer.data.view.RPC(nameof(RPCA_ExecutionOver), RpcTarget.AllViaServer, decidingPlayer.playerID);
+                NetworkingManager.RPC(typeof(CurseManager), nameof(RPCA_ExecutionOver), decidingPlayer.playerID);
+            }
+            else
             {
                 playerDeciding = false;
+            }
+        }
+
+        [UnboundRPC]
+        private static void RPCA_ExecutionOver(int playerID)
+        {
+            if (CurseManager.instance.decidingPlayer == PlayerManager.instance.players.Where(player => player.playerID == playerID).First())
+            {
+                CurseManager.instance.playerDeciding = false;
             }
         }
 
