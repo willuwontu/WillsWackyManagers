@@ -10,6 +10,7 @@ using UnityEngine;
 using System;
 using BepInEx.Bootstrap;
 using Photon.Pun;
+using WillsWackyManagers.UI;
 
 namespace WillsWackyManagers.Utils
 {
@@ -652,7 +653,7 @@ namespace WillsWackyManagers.Utils
             {
                 try
                 {
-                    RWF.UI.PopUpMenu.instance.Open(choices, OnRemovalOptionChosen);
+                    PopUpMenu.instance.Open(choices, OnRemovalOptionChosen);
                 }
                 catch (NullReferenceException)
                 {
@@ -686,7 +687,7 @@ namespace WillsWackyManagers.Utils
                 }
                 else
                 {
-                    RWF.UI.PopUpMenu.instance.InvokeMethod("Choose");
+                    PopUpMenu.instance.InvokeMethod("Choose");
                     yield return new WaitForSecondsRealtime(30f);
                 }
             }

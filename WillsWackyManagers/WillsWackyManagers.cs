@@ -18,6 +18,7 @@ using WillsWackyManagers.Cards;
 using WillsWackyManagers.Networking;
 using UnityEngine.UI;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
+using Jotunn.Utils;
 
 namespace WillsWackyManagers
 {
@@ -25,7 +26,6 @@ namespace WillsWackyManagers
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("io.olavim.rounds.rwf", BepInDependency.DependencyFlags.HardDependency)]
     // Declares our mod to Bepin
     [BepInPlugin(ModId, ModName, Version)]
     // The game our mod is associated with
@@ -34,7 +34,7 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.2.9"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.3.0"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
 
         public static WillsWackyManagers instance;
@@ -51,6 +51,8 @@ namespace WillsWackyManagers
 
         // A way for me to hook onto the menu and add more options in WWC, if needed.
         public GameObject optionsMenu;
+
+        internal AssetBundle WWMCards;
 
         private const bool debug = false;
 
@@ -86,6 +88,8 @@ namespace WillsWackyManagers
 
             Unbound.RegisterMenu("Will's Wacky Options", () => { }, NewGUI, null, false);
             Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
+
+            WWMCards = AssetUtils.LoadAssetBundleFromResources("wwmcards", typeof(WillsWackyManagers).Assembly);
 
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, PlayerPickStart);
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, PlayerPickEnd);
@@ -354,6 +358,20 @@ namespace WillsWackyManagers
             CardChoiceVisuals.instance.Hide();
 
             yield break;
+        }
+
+        public void InjectUIElements()
+        {
+            var uiGo = GameObject.Find("/Game/UI");
+            var gameGo = uiGo.transform.Find("UI_Game").Find("Canvas").gameObject;
+
+            if (!gameGo.transform.Find("PopUpMenuWWM"))
+            {
+                var popupGo = new GameObject("PopUpMenuWWM");
+                popupGo.transform.SetParent(gameGo.transform);
+                popupGo.transform.localScale = Vector3.one;
+                popupGo.AddComponent<UI.PopUpMenu>();
+            }
         }
     }
 }

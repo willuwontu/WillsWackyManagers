@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnboundLib;
 using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
+using WillsWackyManagers.MonoBehaviours;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using ModdingUtils.Extensions;
 using UnityEngine;
@@ -42,7 +43,22 @@ namespace WillsWackyManagers.Cards
         }
         protected override GameObject GetCardArt()
         {
-            return null;
+            GameObject art;
+
+            try
+            {
+                art = WillsWackyManagers.instance.WWMCards.LoadAsset<GameObject>("C_TableFlip");
+                var randColor = art.transform.Find("Foreground/Character").gameObject.AddComponent<RandomGraphicColorOnAwake>();
+                randColor.colorA = new Color32(200, 200, 200, 255);
+                randColor.colorB = new Color32(75, 75, 75, 255);
+                randColor.updateChildren = true;
+            }
+            catch
+            {
+                art = null;
+            }
+
+            return art;
         }
         protected override CardInfo.Rarity GetRarity()
         {
