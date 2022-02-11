@@ -16,7 +16,7 @@ namespace WillsWackyManagers.Cards
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             ModdingUtils.Extensions.CardInfoExtension.GetAdditionalData(cardInfo).canBeReassigned = false;
-            cardInfo.categories = new CardCategory[] { RerollManager.instance.NoFlip };
+            cardInfo.categories = new CardCategory[] { RerollManager.instance.NoFlip, CustomCardCategories.instance.CardCategory("CardManipulation") };
             UnityEngine.Debug.Log($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

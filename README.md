@@ -5,6 +5,10 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.3.1
+- Added the Card Manipulation category to Table Flip and Reroll
+
+----
 ### v 1.3.0
 - Removed RWF as a dependency.
 
