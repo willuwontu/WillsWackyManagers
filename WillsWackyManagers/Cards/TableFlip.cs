@@ -52,6 +52,13 @@ namespace WillsWackyManagers.Cards
                 randColor.colorA = new Color32(200, 200, 200, 255);
                 randColor.colorB = new Color32(75, 75, 75, 255);
                 randColor.updateChildren = true;
+
+                var cards = art.transform.Find("Foreground/Cards");
+
+                foreach (Transform child in cards)
+                {
+                    child.Find("Card Holder").gameObject.AddComponent<GetRandomCardVisualsOnEnable>();
+                }
             }
             catch
             {
