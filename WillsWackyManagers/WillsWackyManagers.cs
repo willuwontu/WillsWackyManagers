@@ -15,7 +15,9 @@ using TMPro;
 using HarmonyLib;
 using Photon.Pun;
 using WillsWackyManagers.Cards;
+using WillsWackyManagers.Cards.Curses;
 using WillsWackyManagers.Networking;
+using WillsWackyManagers.MonoBehaviours;
 using UnityEngine.UI;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using Jotunn.Utils;
@@ -34,8 +36,9 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.3.2"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.3.3"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
+        public const string CurseInitials = "Curse";
 
         public static WillsWackyManagers instance;
 
@@ -52,7 +55,7 @@ namespace WillsWackyManagers
         // A way for me to hook onto the menu and add more options in WWC, if needed.
         public GameObject optionsMenu;
 
-        internal AssetBundle WWMCards;
+        public AssetBundle WWWMAssets { get; private set; }
 
         private const bool debug = false;
 
@@ -89,17 +92,41 @@ namespace WillsWackyManagers
             Unbound.RegisterMenu("Will's Wacky Options", () => { }, NewGUI, null, false);
             Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
 
-            WWMCards = AssetUtils.LoadAssetBundleFromResources("wwmcards", typeof(WillsWackyManagers).Assembly);
+            WWWMAssets = AssetUtils.LoadAssetBundleFromResources("wwccards", typeof(WillsWackyManagers).Assembly);
 
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, PlayerPickStart);
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, PlayerPickEnd);
             GameModeManager.AddHook(GameModeHooks.HookGameStart, GameStart);
             GameModeManager.AddHook(GameModeHooks.HookPickEnd, PickEnd);
             GameModeManager.AddHook(GameModeHooks.HookPickStart, PickStart);
+            GameModeManager.AddHook(GameModeHooks.HookGameEnd, GameEnd);
 
 
             CustomCard.BuildCard<TableFlip>((cardInfo) => { RerollManager.instance.tableFlipCard = cardInfo; });
             CustomCard.BuildCard<Reroll>((cardInfo) => { RerollManager.instance.rerollCard = cardInfo; });
+
+            { // Curses
+                CustomCard.BuildCard<PastaShells>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<CrookedLegs>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<DrivenToEarth>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<Misfire>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<UncomfortableDefense>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<CounterfeitAmmo>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<NeedleBullets>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<WildShots>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<RabbitsFoot>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<LuckyClover>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<DefectiveTrigger>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<MisalignedSights>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<Damnation>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<FragileBody>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<AmmoRegulations>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<AirResistance>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<LeadBullets>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<AnimePhysics>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<TakeANumber>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+                CustomCard.BuildCard<HeavyShields>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            }
         }
 
         public void DebugLog(object message)
@@ -141,7 +168,7 @@ namespace WillsWackyManagers
         {
             if (RerollManager.instance.tableFlipped)
             {
-                StartCoroutine(RerollManager.instance.FlipTable());
+                StartCoroutine(RerollManager.instance.IFlipTableNew());
             }
             yield return new WaitUntil(() => RerollManager.instance.tableFlipped == false);
 
@@ -212,6 +239,22 @@ namespace WillsWackyManagers
             }
 
             yield break;
+        }
+
+        IEnumerator GameEnd(IGameModeHandler gm)
+        {
+            DestroyAll<Misfire_Mono>();
+            yield break;
+        }
+
+        void DestroyAll<T>() where T : UnityEngine.Object
+        {
+            var objects = GameObject.FindObjectsOfType<T>();
+            for (int i = objects.Length - 1; i >= 0; i--)
+            {
+                UnityEngine.Debug.Log($"Attempting to Destroy {objects[i].GetType().Name} number {i}");
+                UnityEngine.Object.Destroy(objects[i]);
+            }
         }
 
         private IEnumerator PickStart(IGameModeHandler gm)

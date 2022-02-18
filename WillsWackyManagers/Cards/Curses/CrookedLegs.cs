@@ -7,37 +7,35 @@ using UnboundLib;
 using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
-using ModdingUtils.Extensions;
 using UnityEngine;
 
-namespace WillsWackyManagers.Cards
+namespace WillsWackyManagers.Cards.Curses
 {
-    class Reroll : CustomCard
+    class CrookedLegs : CustomCard
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            cardInfo.GetAdditionalData().canBeReassigned = false;
-            cardInfo.categories = new CardCategory[] { RerollManager.instance.NoFlip, CustomCardCategories.instance.CardCategory("CardManipulation") };
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Built");
+            statModifiers.movementSpeed = 0.8f;
+            statModifiers.jump = 0.9f;
+            cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            RerollManager.instance.rerollPlayers.Add(player);
-            RerollManager.instance.reroll = true;
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Added to Player {player.playerID}");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} removed from Player {player.playerID}");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} removed from Player {player.playerID}");
         }
 
         protected override string GetTitle()
         {
-            return "Reroll";
+            return "Crooked Legs";
         }
         protected override string GetDescription()
         {
-            return "When you've just had no luck. Removes every card you have and replaces it with a random one of the same rarity.";
+            return "Knibbly knobbly, your knees are all wobbly.";
         }
         protected override GameObject GetCardArt()
         {
@@ -45,12 +43,26 @@ namespace WillsWackyManagers.Cards
         }
         protected override CardInfo.Rarity GetRarity()
         {
-            return CardInfo.Rarity.Uncommon;
+            return CardInfo.Rarity.Common;
         }
         protected override CardInfoStat[] GetStats()
         {
             return new CardInfoStat[]
             {
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Move Speed",
+                    amount = "-20%",
+                    simepleAmount = CardInfoStat.SimpleAmount.aLotLower
+                },
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Jump Height",
+                    amount = "-10%",
+                    simepleAmount = CardInfoStat.SimpleAmount.aLotLower
+                }
             };
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
@@ -59,7 +71,7 @@ namespace WillsWackyManagers.Cards
         }
         public override string GetModName()
         {
-            return WillsWackyManagers.ModInitials;
+            return WillsWackyManagers.CurseInitials;
         }
         public override bool GetEnabled()
         {

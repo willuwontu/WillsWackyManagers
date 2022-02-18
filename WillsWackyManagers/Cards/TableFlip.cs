@@ -20,17 +20,17 @@ namespace WillsWackyManagers.Cards
         {
             cardInfo.GetAdditionalData().canBeReassigned = false;
             cardInfo.categories = new CardCategory[] { RerollManager.instance.NoFlip, tableFlipCardCategory, CustomCardCategories.instance.CardCategory("CardManipulation") };
-            UnityEngine.Debug.Log($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Built");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
             RerollManager.instance.flippingPlayer = player;
             RerollManager.instance.tableFlipped = true;
-            UnityEngine.Debug.Log($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Added to Player {player.playerID}");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            UnityEngine.Debug.Log($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} removed from Player {player.playerID}");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} removed from Player {player.playerID}");
         }
 
         protected override string GetTitle()
@@ -47,7 +47,7 @@ namespace WillsWackyManagers.Cards
 
             try
             {
-                art = WillsWackyManagers.instance.WWMCards.LoadAsset<GameObject>("C_TableFlip");
+                art = WillsWackyManagers.instance.WWWMAssets.LoadAsset<GameObject>("C_TableFlip");
                 var randColor = art.transform.Find("Foreground/Character").gameObject.AddComponent<RandomGraphicColorOnAwake>();
                 randColor.colorA = new Color32(200, 200, 200, 255);
                 randColor.colorB = new Color32(75, 75, 75, 255);

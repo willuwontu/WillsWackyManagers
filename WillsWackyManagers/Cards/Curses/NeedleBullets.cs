@@ -7,37 +7,37 @@ using UnboundLib;
 using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
-using ModdingUtils.Extensions;
 using UnityEngine;
 
-namespace WillsWackyManagers.Cards
+namespace WillsWackyManagers.Cards.Curses
 {
-    class Reroll : CustomCard
+    class NeedleBullets : CustomCard
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            cardInfo.GetAdditionalData().canBeReassigned = false;
-            cardInfo.categories = new CardCategory[] { RerollManager.instance.NoFlip, CustomCardCategories.instance.CardCategory("CardManipulation") };
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Built");
+            gun.projectileSize = 0.7f;
+            gun.spread = 0.2f;
+            gun.reflects = -2;
+
+            cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            RerollManager.instance.rerollPlayers.Add(player);
-            RerollManager.instance.reroll = true;
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Added to Player {player.playerID}");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} removed from Player {player.playerID}");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} removed from Player {player.playerID}");
         }
 
         protected override string GetTitle()
         {
-            return "Reroll";
+            return "Needle Bullets";
         }
         protected override string GetDescription()
         {
-            return "When you've just had no luck. Removes every card you have and replaces it with a random one of the same rarity.";
+            return "Hard to see, a pain to control, and likely to get lost in a haystack.";
         }
         protected override GameObject GetCardArt()
         {
@@ -51,6 +51,27 @@ namespace WillsWackyManagers.Cards
         {
             return new CardInfoStat[]
             {
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Bullets",
+                    amount = "Smaller",
+                    simepleAmount = CardInfoStat.SimpleAmount.notAssigned
+                },
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Spread",
+                    amount = "+30%",
+                    simepleAmount = CardInfoStat.SimpleAmount.Some
+                },
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Bounces",
+                    amount = "-2",
+                    simepleAmount = CardInfoStat.SimpleAmount.slightlyLower
+                }
             };
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
@@ -59,7 +80,7 @@ namespace WillsWackyManagers.Cards
         }
         public override string GetModName()
         {
-            return WillsWackyManagers.ModInitials;
+            return WillsWackyManagers.CurseInitials;
         }
         public override bool GetEnabled()
         {
