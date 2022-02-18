@@ -5,39 +5,44 @@ using System.Text;
 using System.Threading.Tasks;
 using UnboundLib;
 using UnboundLib.Cards;
+using WillsWackyManagers.MonoBehaviours;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
-using ModdingUtils.Extensions;
 using UnityEngine;
 
-namespace WillsWackyManagers.Cards
+namespace WillsWackyManagers.Cards.Curses
 {
-    class Reroll : CustomCard
+    class WildShots : CustomCard
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            cardInfo.GetAdditionalData().canBeReassigned = false;
-            cardInfo.categories = new CardCategory[] { RerollManager.instance.NoFlip, CustomCardCategories.instance.CardCategory("CardManipulation") };
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Built");
+            cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
+            gun.reloadTimeAdd = 0.5f;
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            RerollManager.instance.rerollPlayers.Add(player);
-            RerollManager.instance.reroll = true;
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Added to Player {player.playerID}");
+            var backwards = player.gameObject.GetOrAddComponent<WildShots_Mono>();
+            backwards.backwardsChance += 10;
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} removed from Player {player.playerID}");
+            var backwards = player.gameObject.GetComponent<WildShots_Mono>();
+            if (backwards)
+            {
+                backwards.backwardsChance -= 10; 
+            }
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} removed from Player {player.playerID}");
         }
 
         protected override string GetTitle()
         {
-            return "Reroll";
+            return "Wild Shots";
         }
         protected override string GetDescription()
         {
-            return "When you've just had no luck. Removes every card you have and replaces it with a random one of the same rarity.";
+            return "Which way was the enemy again?";
         }
         protected override GameObject GetCardArt()
         {
@@ -51,6 +56,20 @@ namespace WillsWackyManagers.Cards
         {
             return new CardInfoStat[]
             {
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Wild Shots",
+                    amount = "+10%",
+                    simepleAmount = CardInfoStat.SimpleAmount.aLotLower
+                },
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Reload Time",
+                    amount = "+0.75s",
+                    simepleAmount = CardInfoStat.SimpleAmount.aLotLower
+                }
             };
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
@@ -59,7 +78,7 @@ namespace WillsWackyManagers.Cards
         }
         public override string GetModName()
         {
-            return WillsWackyManagers.ModInitials;
+            return WillsWackyManagers.CurseInitials;
         }
         public override bool GetEnabled()
         {

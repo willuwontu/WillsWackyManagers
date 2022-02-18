@@ -5,39 +5,39 @@ using System.Text;
 using System.Threading.Tasks;
 using UnboundLib;
 using UnboundLib.Cards;
-using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
-using ModdingUtils.Extensions;
+using WillsWackyManagers.Utils;
 using UnityEngine;
 
-namespace WillsWackyManagers.Cards
+namespace WillsWackyManagers.Cards.Curses
 {
-    class Reroll : CustomCard
+    class UncomfortableDefense : CustomCard
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            cardInfo.GetAdditionalData().canBeReassigned = false;
-            cardInfo.categories = new CardCategory[] { RerollManager.instance.NoFlip, CustomCardCategories.instance.CardCategory("CardManipulation") };
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Built");
+            var block = cardInfo.gameObject.GetOrAddComponent<Block>();
+            block.InvokeMethod("ResetStats");
+            block.cdMultiplier = 1.2f;
+            block.additionalBlocks = -1;
+            cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            RerollManager.instance.rerollPlayers.Add(player);
-            RerollManager.instance.reroll = true;
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} Added to Player {player.playerID}");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Card] {GetTitle()} removed from Player {player.playerID}");
+            WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} removed from Player {player.playerID}");
         }
 
         protected override string GetTitle()
         {
-            return "Reroll";
+            return "Uncomfortable Defense";
         }
         protected override string GetDescription()
         {
-            return "When you've just had no luck. Removes every card you have and replaces it with a random one of the same rarity.";
+            return "Bim bung, you're now aware of your tongue.";
         }
         protected override GameObject GetCardArt()
         {
@@ -51,15 +51,29 @@ namespace WillsWackyManagers.Cards
         {
             return new CardInfoStat[]
             {
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Block Cooldown",
+                    amount = "+20%",
+                    simepleAmount = CardInfoStat.SimpleAmount.aLotOf
+                },
+                new CardInfoStat()
+                {
+                    positive = false,
+                    stat = "Additional Blocks",
+                    amount = "-1",
+                    simepleAmount = CardInfoStat.SimpleAmount.lower
+                }
             };
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
         {
-            return CardThemeColor.CardThemeColorType.EvilPurple;
+            return CardThemeColor.CardThemeColorType.TechWhite;
         }
         public override string GetModName()
         {
-            return WillsWackyManagers.ModInitials;
+            return WillsWackyManagers.CurseInitials;
         }
         public override bool GetEnabled()
         {
