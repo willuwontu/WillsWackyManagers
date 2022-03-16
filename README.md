@@ -5,6 +5,14 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 ----
+### v 1.3.5
+- Bug Fixes
+
+----
+### v 1.3.4
+- Optimized `CurseManager::RemoveAllCurses()` and added an additional variant.
+
+----
 ### v 1.3.3
 - Some of WWC's curses were moved over
 - Table Flip now executes a reroll on all 4 players instead of doing its own thing.

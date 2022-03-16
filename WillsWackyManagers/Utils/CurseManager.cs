@@ -347,43 +347,51 @@ namespace WillsWackyManagers.Utils
         /// <param name="player">The player to remove curses from.</param>
         public void RemoveAllCurses(Player player)
         {
-            RemoveAllCurses(player, null);
+            Action<CardInfo[]> callback = null;
+            RemoveAllCurses(player, callback);
         }
 
         /// <summary>
         /// Removes all curses from the specified player.
         /// </summary>
         /// <param name="player">The player to remove curses from.</param>
-        /// <param name="callback">An optional callback to run with each card removed.</param>
+        /// <param name="callback">An optional callback to run with each curse removed.</param>
         public void RemoveAllCurses(Player player, Action<CardInfo> callback)
+        {
+            StartCoroutine(IRemoveAllCurses(player, callback));
+        }
+
+        /// <summary>
+        /// Removes all curses from the specified player.
+        /// </summary>
+        /// <param name="player">The player to remove curses from.</param>
+        /// <param name="callback">An optional callback to run with all removed curse.</param>
+        public void RemoveAllCurses(Player player, Action<CardInfo[]> callback)
         {
             StartCoroutine(IRemoveAllCurses(player, callback));
         }
 
         private IEnumerator IRemoveAllCurses(Player player, Action<CardInfo> callback)
         {
-            List<CardInfo> playerCurses = new List<CardInfo>();
-            while (HasCurse(player))
-            {
-                for (int i = 0; i < player.data.currentCards.Count(); i++)
-                {
-                    var card = player.data.currentCards[i];
-                    if (IsCurse(card))
-                    {
-                        playerCurses.Add(card);
-                        ModdingUtils.Utils.Cards.instance.RemoveCardFromPlayer(player, i);
-                        break;
-                    }
-                }
-
-                yield return WaitFor.Frames(40);
-            }
+            int[] curseIndeces = Enumerable.Range(0, player.data.currentCards.Count()).Where((index) => IsCurse(player.data.currentCards[index])).ToArray();
+            CardInfo[] playerCurses = ModdingUtils.Utils.Cards.instance.RemoveCardsFromPlayer(player, curseIndeces);
 
             foreach (var curse in playerCurses)
             {
                 callback?.Invoke(curse);
-                yield return WaitFor.Frames(40);
+                yield return WaitFor.Frames(20);
             }
+
+            yield break;
+        }
+
+        private IEnumerator IRemoveAllCurses(Player player, Action<CardInfo[]> callback)
+        {
+            int[] curseIndeces = Enumerable.Range(0, player.data.currentCards.Count()).Where((index) => IsCurse(player.data.currentCards[index])).ToArray();
+            CardInfo[] playerCurses = ModdingUtils.Utils.Cards.instance.RemoveCardsFromPlayer(player, curseIndeces);
+
+            callback?.Invoke(playerCurses);
+            yield return WaitFor.Frames(20);
 
             yield break;
         }
