@@ -390,3 +390,8 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+WillsWackyManagers/LICENSE
+WillsWackyManagers/ThunderStore/icon.png
+WillsWackyManagers/ThunderStore/LICENSE
+WillsWackyManagers/ThunderStore/manifest.json
+WillsWackyManagers/ThunderStore/README.md
