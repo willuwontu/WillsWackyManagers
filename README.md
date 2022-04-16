@@ -4,6 +4,23 @@ Provides 2 different managers for the community to use:
 - CurseManager
 - RerollManager
 
+<details>
+<summary>Patches</summary>
+
+----
+### v 1.3.8
+- Reroll now syncs on each client.
+- Rerolls now respect nulls.
+
+----
+### v 1.3.7
+- Table Flip Should Now wait for sync after executing on each client.
+
+----
+### v 1.3.6
+- Bug Fixes
+- Using Genie to pick Reroll now works.
+
 ----
 ### v 1.3.5
 - Bug Fixes
@@ -102,6 +119,8 @@ Provides 2 different managers for the community to use:
 ----
 ### v 1.0.1
 - Fixed an error in reroll's logic that would cause it to stop after rerolling a player.
+
+</details>
 
 ----
 ## CurseManager
