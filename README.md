@@ -8,6 +8,10 @@ Provides 2 different managers for the community to use:
 <summary>Patches</summary>
 
 ----
+### v 1.3.9
+- Bug Fixes
+
+----
 ### v 1.3.8
 - Reroll now syncs on each client.
 - Rerolls now respect nulls.
