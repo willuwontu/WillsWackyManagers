@@ -51,7 +51,7 @@ namespace WillsWackyManagers.Utils
         /// <summary>
         /// When set to true, a reroll will be initiated at the next end of a player's pick. Initiate the Reroll() method if you wish to reroll before then.
         /// </summary>
-        public bool reroll;
+        public bool reroll = false;
 
         /// <summary>
         /// The reroll card itself. It's automatically given out to the rerolling player after a table flip.
@@ -158,6 +158,41 @@ namespace WillsWackyManagers.Utils
 
             flippingPlayer = null;
             tableFlipped = false;
+
+            ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+            customProperties[SettingCoordinator.TableFlipSyncProperty] = true;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+
+            var inSync = false;
+
+            while (!inSync && !PhotonNetwork.OfflineMode)
+            {
+                inSync = true;
+                foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
+                {
+                    if (player.CustomProperties.TryGetValue(SettingCoordinator.TableFlipSyncProperty, out var status))
+                    {
+                        if (!((bool)status))
+                        {
+                            inSync = false;
+                        }
+                    }
+                    else
+                    {
+                        inSync = false;
+                    }
+                }
+
+                yield return null;
+            }
+
+            yield return WaitFor.Frames(10);
+
+            customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+            customProperties[SettingCoordinator.TableFlipSyncProperty] = false;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+
+            yield return WaitFor.Frames(10);
 
             yield return null;
         }
@@ -394,6 +429,8 @@ namespace WillsWackyManagers.Utils
         /// <returns></returns>
         public IEnumerator InitiateRerolls(bool addCard = true)
         {
+            yield return WaitFor.Frames(40);
+
             var rerollers = rerollPlayers.ToArray();
             var rerolled = new List<Player>();
             foreach (var reroller in rerollers)
@@ -407,8 +444,50 @@ namespace WillsWackyManagers.Utils
             
             rerollPlayers = new List<Player>();
             reroll = false;
+
+            ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+            customProperties[SettingCoordinator.TableFlipSyncProperty] = true;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+
+            var inSync = false;
+
+            while (!inSync && !PhotonNetwork.OfflineMode)
+            {
+                inSync = true;
+                foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
+                {
+                    if (player.CustomProperties.TryGetValue(SettingCoordinator.TableFlipSyncProperty, out var status))
+                    {
+                        if (!((bool)status))
+                        {
+                            inSync = false;
+                        }
+                    }
+                    else
+                    {
+                        inSync = false;
+                    }
+                }
+
+                yield return null;
+            }
+
+            yield return WaitFor.Frames(10);
+
+            customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+            customProperties[SettingCoordinator.TableFlipSyncProperty] = false;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+
+            yield return WaitFor.Frames(10);
+
             yield return null;
         }
+
+        /// <summary>
+        /// <para>An action run when a player's cards are rerolled. The input parameters are the player and their original cards.</para>
+        /// <para>The action is run after all cards have been removed from the player.</para>
+        /// </summary>
+        public Action<Player, CardInfo[]> playerRerolledAction = null;
 
         /// <summary>
         /// Rerolls any cards the specified player has.
@@ -421,10 +500,12 @@ namespace WillsWackyManagers.Utils
         {
             if (player && (player ? player.data.currentCards.Count : 0) > 0)
             {
+                List<CardInfo> originalCards = new List<CardInfo>();
                 List<Rarity> cardRarities = new List<Rarity>();
 
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Getting card rarities for player {player.playerID}");
                 cardRarities = player.data.currentCards.Select(card => CardRarity(card)).ToList();
+                originalCards = player.data.currentCards.ToList();
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {cardRarities.Count} card rarities found for player {player.playerID}");
                 try
                 {
@@ -436,13 +517,34 @@ namespace WillsWackyManagers.Utils
                     cardRarities.Clear();
                 }
 
+                if (playerRerolledAction != null)
+                {
+                    try
+                    {
+                        playerRerolledAction(player, originalCards.ToArray());
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.Log(e);
+                    }
+                }
+
                 if (cardRarities.Count > 0 && !noRemove)
                 {
                     // Remove the last card from the rerolling player, since it's going to be rerolling
                     cardRarities.RemoveAt(cardRarities.Count - 1); 
                 }
 
-                var allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
+                List<CardInfo> allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
+
+                List<CardInfo> hiddenCards = (List<CardInfo>)ModdingUtils.Utils.Cards.instance.GetFieldValue("hiddenCards");
+
+                List<CardInfo> nulls = hiddenCards.Where(cardData => cardData.categories.Contains(CustomCardCategories.instance.CardCategory("nullCard"))).ToList();
+
+                if (nulls.Count() > 0)
+                {
+                    allCards.AddRange(nulls);
+                }
 
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {allCards.Count()} cards are enabled and ready to be swapped out.");
 
@@ -451,8 +553,10 @@ namespace WillsWackyManagers.Utils
 
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
 
-                foreach (var rarity in cardRarities)
+                for (int i = 0; i < cardRarities.Count(); i++)
                 {
+                    var rarity = cardRarities[i];
+                    var originalCard = originalCards[i];
 
                     ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
                     if (CurseManager.instance.HasCurse(player))
@@ -502,7 +606,10 @@ namespace WillsWackyManagers.Utils
             Common,
             CommonCurse,
             UncommonCurse,
-            RareCurse
+            RareCurse,
+            CommonNull,
+            UncommonNull,
+            RareNull
         }
 
         private string RarityName(Rarity rarity)
@@ -521,6 +628,8 @@ namespace WillsWackyManagers.Utils
                     return "Uncommon Curse";
                 case Rarity.CommonCurse:
                     return "Common Curse";
+                case Rarity.CommonNull:
+                    return "Null";
                 default:
                     return "No Rarity?";
             }
@@ -528,8 +637,22 @@ namespace WillsWackyManagers.Utils
         private Rarity CardRarity(CardInfo cardInfo)
         {
             Rarity rarity;
-
-            if (cardInfo.categories.Contains(CurseManager.instance.curseCategory))
+            if (cardInfo.categories.Contains(CustomCardCategories.instance.CardCategory("nullCard")))
+            {
+                switch (cardInfo.rarity)
+                {
+                    case CardInfo.Rarity.Rare:
+                        rarity = Rarity.RareNull;
+                        break;
+                    case CardInfo.Rarity.Uncommon:
+                        rarity = Rarity.UncommonNull;
+                        break;
+                    default:
+                        rarity = Rarity.CommonNull;
+                        break;
+                }
+            }
+            else if (cardInfo.categories.Contains(CurseManager.instance.curseCategory))
             {
                 switch (cardInfo.rarity)
                 {
