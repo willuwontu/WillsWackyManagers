@@ -10,6 +10,7 @@ using ModdingUtils.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using Photon.Pun;
 using WillsWackyManagers.Networking;
+using WillsWackyManagers.Extensions;
 
 namespace WillsWackyManagers.Utils
 {
@@ -446,7 +447,7 @@ namespace WillsWackyManagers.Utils
             reroll = false;
 
             ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
-            customProperties[SettingCoordinator.TableFlipSyncProperty] = true;
+            customProperties[SettingCoordinator.RerollSyncProperty] = true;
             PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
 
             var inSync = false;
@@ -456,7 +457,7 @@ namespace WillsWackyManagers.Utils
                 inSync = true;
                 foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
                 {
-                    if (player.CustomProperties.TryGetValue(SettingCoordinator.TableFlipSyncProperty, out var status))
+                    if (player.CustomProperties.TryGetValue(SettingCoordinator.RerollSyncProperty, out var status))
                     {
                         if (!((bool)status))
                         {
@@ -475,7 +476,7 @@ namespace WillsWackyManagers.Utils
             yield return WaitFor.Frames(10);
 
             customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
-            customProperties[SettingCoordinator.TableFlipSyncProperty] = false;
+            customProperties[SettingCoordinator.RerollSyncProperty] = false;
             PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
 
             yield return WaitFor.Frames(10);
@@ -504,7 +505,19 @@ namespace WillsWackyManagers.Utils
                 List<Rarity> cardRarities = new List<Rarity>();
 
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Getting card rarities for player {player.playerID}");
-                cardRarities = player.data.currentCards.Select(card => CardRarity(card)).ToList();
+                cardRarities = player.data.currentCards.Select(card => 
+                    { 
+                        try 
+                        { 
+                            card.GetAdditionalData().cardRerolledAction(player, card); 
+                        } 
+                        catch (Exception e) 
+                        { 
+                            UnityEngine.Debug.LogException(e); 
+                        } 
+
+                        return CardRarity(card); 
+                    }).ToList();
                 originalCards = player.data.currentCards.ToList();
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {cardRarities.Count} card rarities found for player {player.playerID}");
                 try
@@ -580,6 +593,15 @@ namespace WillsWackyManagers.Utils
                         WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is being given {card.cardName}");
                         ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
                         //ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
+
+                        try
+                        {
+                            card.GetAdditionalData().cardRerolledIntoAction(player, card);
+                        }
+                        catch (Exception e)
+                        {
+                            UnityEngine.Debug.LogException(e);
+                        }
                     }
 
                     yield return WaitFor.Frames(40);

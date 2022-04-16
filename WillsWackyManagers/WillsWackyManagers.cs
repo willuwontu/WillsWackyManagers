@@ -36,7 +36,7 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.3.8"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.3.9"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -137,7 +137,7 @@ namespace WillsWackyManagers
             }
         }
 
-        IEnumerator PickEnd(IGameModeHandler gm)
+        IEnumerator PlayerPickEnd(IGameModeHandler gm)
         {
             yield return new WaitForSecondsRealtime(1f);
 
@@ -161,7 +161,7 @@ namespace WillsWackyManagers
             yield break;
         }
 
-        IEnumerator PlayerPickEnd(IGameModeHandler gm)
+        IEnumerator PickEnd(IGameModeHandler gm)
         {
             if (RerollManager.instance.tableFlipped)
             {

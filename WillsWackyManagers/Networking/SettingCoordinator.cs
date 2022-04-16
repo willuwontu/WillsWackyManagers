@@ -12,6 +12,7 @@ namespace WillsWackyManagers.Networking
         internal bool Synced { get; private set; }
         internal const string SettingsPropertyName = "WWM Settings";
         internal const string TableFlipSyncProperty = "Table Flip Sync Stats";
+        internal const string RerollSyncProperty = "Reroll Sync Stats";
 
         public static SettingCoordinator instance;
 
