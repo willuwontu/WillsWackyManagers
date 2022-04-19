@@ -143,36 +143,25 @@ namespace WillsWackyManagers.Utils
             var rerollers = PlayerManager.instance.players.ToList();
             var rerolled = new List<Player>();
             rerollers.Shuffle();
-            foreach (var reroller in rerollers)
-            {
-                if (!rerolled.Contains(reroller))
-                {
-                    rerolled.Add(reroller);
-                    yield return Reroll(reroller, false, reroller != flippingPlayer);
-                }
-            }
 
-            Coroutine[] rerollCoroutines = new Coroutine[rerollers.Count()];
+            int routinesRunning = 0;
 
             for (int i = 0; i < rerollers.Count(); i++)
             {
-                rerollCoroutines[i] = StartCoroutine(Reroll(rerollers[i], false, rerollers[i] != flippingPlayer));
+                routinesRunning++;
+                StartCoroutine(tableFlipRoutine(rerollers[i], false, rerollers[i] != flippingPlayer));
             }
 
-            yield return new WaitUntil(() =>
+            IEnumerator tableFlipRoutine(Player person, bool addcard, bool removeCard)
             {
-                bool result = true;
+                yield return Reroll(person, addcard, removeCard);
+                routinesRunning--;
+                yield break;
+            }
 
-                for (int i = 0; i < rerollCoroutines.Count(); i++)
-                {
-                    if (rerollCoroutines[i] != null)
-                    {
-                        result = false;
-                    }
-                }
+            yield return new WaitUntil(() => routinesRunning <= 0);
 
-                return result;
-            });
+
             if (flippingPlayer && tableFlipCard && addCard)
             {
                 ModdingUtils.Utils.Cards.instance.AddCardToPlayer(flippingPlayer, tableFlipCard, true, "", 2f, 2f, true);
@@ -453,17 +442,26 @@ namespace WillsWackyManagers.Utils
         {
             yield return WaitFor.Frames(40);
 
-            var rerollers = rerollPlayers.ToArray();
+            var rerollers = rerollPlayers.Distinct().ToArray();
             var rerolled = new List<Player>();
-            foreach (var reroller in rerollers)
+
+            int routinesRunning = 0;
+
+            for (int i = 0; i < rerollers.Count(); i++)
             {
-                if (!rerolled.Contains(reroller))
-                {
-                    rerolled.Add(reroller);
-                    yield return Reroll(reroller);
-                }
+                routinesRunning++;
+                StartCoroutine(rerollRoutine(rerollers[i]));
             }
-            
+
+            IEnumerator rerollRoutine(Player person)
+            {
+                yield return Reroll(person);
+                routinesRunning--;
+                yield break;
+            }
+
+            yield return new WaitUntil(() => routinesRunning <= 0);
+
             rerollPlayers = new List<Player>();
             reroll = false;
 
@@ -505,6 +503,11 @@ namespace WillsWackyManagers.Utils
             yield return null;
         }
 
+        /// <summary>
+        /// <para>Registers an action to be run when a player's cards are rerolled.</para>
+        /// </summary>
+        /// <param name="rerollAction"><para>An action run when a player's cards are rerolled. The input parameters are the player and their original cards.</para>
+        /// <para>The action is run after all cards have been removed from the player.</para></param>
         public void RegisterRerollAction(Action<Player, CardInfo[]> rerollAction)
         {
             playerRerolledActions.Add(rerollAction);
@@ -533,15 +536,6 @@ namespace WillsWackyManagers.Utils
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Getting card rarities for player {player.playerID}");
                 cardRarities = player.data.currentCards.Select(card => 
                     { 
-                        try 
-                        { 
-                            card.GetAdditionalData().cardRerolledAction(player, card); 
-                        } 
-                        catch (Exception e) 
-                        { 
-                            UnityEngine.Debug.LogException(e); 
-                        } 
-
                         return CardRarity(card); 
                     }).ToList();
                 originalCards = player.data.currentCards.ToList();
@@ -564,7 +558,8 @@ namespace WillsWackyManagers.Utils
                     }
                     catch (Exception e)
                     {
-                        UnityEngine.Debug.Log(e);
+                        UnityEngine.Debug.Log($"Exception thrown by reroll action code.");
+                        UnityEngine.Debug.LogException(e);
                     }
                 }
 
@@ -591,6 +586,7 @@ namespace WillsWackyManagers.Utils
 
 
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
+                //ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CustomCardCategories.instance.CardCategory("nullCard"));
 
                 for (int i = 0; i < cardRarities.Count(); i++)
                 {
@@ -619,20 +615,12 @@ namespace WillsWackyManagers.Utils
                         WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is being given {card.cardName}");
                         ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
                         //ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
-
-                        try
-                        {
-                            card.GetAdditionalData().cardRerolledIntoAction(player, card);
-                        }
-                        catch (Exception e)
-                        {
-                            UnityEngine.Debug.LogException(e);
-                        }
                     }
 
                     yield return WaitFor.Frames(40);
                 }
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
+                //ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CustomCardCategories.instance.CardCategory("nullCard"));
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Finished adding cards.");
 
                 if (rerollCard && addCard)
