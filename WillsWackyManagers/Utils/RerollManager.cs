@@ -28,7 +28,12 @@ namespace WillsWackyManagers.Utils
         /// The card category for cards that should not be given out after a table flip.
         /// </summary>
         public CardCategory NoFlip { get; private set; } = CustomCardCategories.instance.CardCategory("NoFlip");
-        
+
+        /// <summary>
+        /// The card category for cards that should not be given out after a table flip.
+        /// </summary>
+        public CardCategory rerollCards { get; private set; } = CustomCardCategories.instance.CardCategory("rerollCards");
+
         /// <summary>
         /// The player responsible for the tableflip. Used to add the table flip card to the player.
         /// </summary>
@@ -507,10 +512,11 @@ namespace WillsWackyManagers.Utils
         /// <para>Registers an action to be run when a player's cards are rerolled.</para>
         /// </summary>
         /// <param name="rerollAction"><para>An action run when a player's cards are rerolled. The input parameters are the player and their original cards.</para>
-        /// <para>The action is run after all cards have been removed from the player.</para></param>
+        /// <para>The action is run after all cards have been removed from the player, but before the new cards have been added.</para></param>
         public void RegisterRerollAction(Action<Player, CardInfo[]> rerollAction)
         {
             playerRerolledActions.Add(rerollAction);
+            //UnityEngine.Debug.Log("Reroll Action registered.");
         }
 
         /// <summary>
@@ -548,19 +554,6 @@ namespace WillsWackyManagers.Utils
                 {
                     WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] SOMEBODY NEEDS TO FIX THEIR REMOVECARD FUNCTION.");
                     cardRarities.Clear();
-                }
-
-                foreach (var rerollAction in playerRerolledActions)
-                {
-                    try
-                    {
-                        rerollAction(player, originalCards.ToArray());
-                    }
-                    catch (Exception e)
-                    {
-                        UnityEngine.Debug.Log($"Exception thrown by reroll action code.");
-                        UnityEngine.Debug.LogException(e);
-                    }
                 }
 
                 if (cardRarities.Count > 0 && !noRemove)
@@ -621,6 +614,22 @@ namespace WillsWackyManagers.Utils
                 }
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
                 //ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CustomCardCategories.instance.CardCategory("nullCard"));
+
+                foreach (var rerollAction in playerRerolledActions)
+                {
+                    //UnityEngine.Debug.Log("Getting Ready to run a reroll action.");
+                    try
+                    {
+                        //UnityEngine.Debug.Log("Trying to run reroll action.");
+                        rerollAction(player, originalCards.ToArray());
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.Log($"Exception thrown by reroll action code.");
+                        UnityEngine.Debug.LogException(e);
+                    }
+                }
+
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Finished adding cards.");
 
                 if (rerollCard && addCard)
