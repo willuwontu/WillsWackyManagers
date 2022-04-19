@@ -8,6 +8,12 @@ Provides 2 different managers for the community to use:
 <summary>Patches</summary>
 
 ----
+### v 1.4.0
+- Bug Fixes
+- Reworked Table Flips logic to run for all players at the same time.
+- Added an action for the Reroll Manager to run after rerolling cards.
+
+----
 ### v 1.3.9
 - Bug Fixes
 
