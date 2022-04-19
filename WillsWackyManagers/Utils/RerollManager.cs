@@ -152,6 +152,27 @@ namespace WillsWackyManagers.Utils
                 }
             }
 
+            Coroutine[] rerollCoroutines = new Coroutine[rerollers.Count()];
+
+            for (int i = 0; i < rerollers.Count(); i++)
+            {
+                rerollCoroutines[i] = StartCoroutine(Reroll(rerollers[i], false, rerollers[i] != flippingPlayer));
+            }
+
+            yield return new WaitUntil(() =>
+            {
+                bool result = true;
+
+                for (int i = 0; i < rerollCoroutines.Count(); i++)
+                {
+                    if (rerollCoroutines[i] != null)
+                    {
+                        result = false;
+                    }
+                }
+
+                return result;
+            });
             if (flippingPlayer && tableFlipCard && addCard)
             {
                 ModdingUtils.Utils.Cards.instance.AddCardToPlayer(flippingPlayer, tableFlipCard, true, "", 2f, 2f, true);
@@ -484,11 +505,16 @@ namespace WillsWackyManagers.Utils
             yield return null;
         }
 
+        public void RegisterRerollAction(Action<Player, CardInfo[]> rerollAction)
+        {
+            playerRerolledActions.Add(rerollAction);
+        }
+
         /// <summary>
         /// <para>An action run when a player's cards are rerolled. The input parameters are the player and their original cards.</para>
         /// <para>The action is run after all cards have been removed from the player.</para>
         /// </summary>
-        public Action<Player, CardInfo[]> playerRerolledAction = null;
+        private List<Action<Player, CardInfo[]>> playerRerolledActions = new List<Action<Player, CardInfo[]>>();
 
         /// <summary>
         /// Rerolls any cards the specified player has.
@@ -530,11 +556,11 @@ namespace WillsWackyManagers.Utils
                     cardRarities.Clear();
                 }
 
-                if (playerRerolledAction != null)
+                foreach (var rerollAction in playerRerolledActions)
                 {
                     try
                     {
-                        playerRerolledAction(player, originalCards.ToArray());
+                        rerollAction(player, originalCards.ToArray());
                     }
                     catch (Exception e)
                     {
