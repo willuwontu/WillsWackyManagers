@@ -182,6 +182,13 @@ namespace WillsWackyManagers
             }
             yield return new WaitUntil(() => RerollManager.instance.reroll == false);
 
+            if (!PhotonNetwork.OfflineMode)
+            {
+                ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+                customProperties[SettingCoordinator.RerollSyncProperty] = false;
+                PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+            }
+
             var mixers = RerollManager.instance.MixUpPlayers.ToArray();
 
             foreach (var player in mixers)
