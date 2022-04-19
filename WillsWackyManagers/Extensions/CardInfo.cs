@@ -8,13 +8,10 @@ namespace WillsWackyManagers.Extensions
     [Serializable]
     public class CardInfoAdditionalData
     {
-        public Action<Player, CardInfo> cardRerolledAction;
-        public Action<Player, CardInfo> cardRerolledIntoAction;
 
         public CardInfoAdditionalData()
         {
-            cardRerolledAction = null;
-            cardRerolledIntoAction = null;
+
         }
     }
     public static class CardInfoExtension
