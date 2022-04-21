@@ -36,7 +36,7 @@ namespace WillsWackyManagers
     {
         private const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.4.0"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.4.1"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -272,7 +272,7 @@ namespace WillsWackyManagers
 
                 foreach (var player in PlayerManager.instance.players)
                 {
-                    if (gm.GetTeamScore(player.teamID).rounds > ((roundsToWin / 2) + 1 * roundsToWin % 2))
+                    if (gm.GetTeamScore(player.teamID).rounds >= ((roundsToWin / 2) + 1 * roundsToWin % 2))
                     {
                         pickable = true;
                     }

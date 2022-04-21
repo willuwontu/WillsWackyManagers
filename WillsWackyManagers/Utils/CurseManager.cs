@@ -34,6 +34,11 @@ namespace WillsWackyManagers.Utils
         public CardCategory curseCategory { get; private set; } = CustomCardCategories.instance.CardCategory("Curse");
 
         /// <summary>
+        /// The card category for cards that aren't curses but count as them.
+        /// </summary>
+        public CardCategory countAsCurseCategory { get; private set; } = CustomCardCategories.instance.CardCategory("countAsCurse");
+
+        /// <summary>
         /// The card category for cards that interact with cursed players.
         /// </summary>
         public CardCategory curseInteractionCategory { get; private set; } = CustomCardCategories.instance.CardCategory("Cursed");
