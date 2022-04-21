@@ -8,6 +8,10 @@ Provides 2 different managers for the community to use:
 <summary>Patches</summary>
 
 ----
+### v 1.4.1
+- Fixed Erroneous logic for determining when table flip can show up.
+
+----
 ### v 1.4.0
 - Bug Fixes
 - Reworked Table Flips logic to run for all players at the same time.
