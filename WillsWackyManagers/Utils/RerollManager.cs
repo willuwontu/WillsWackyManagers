@@ -261,7 +261,7 @@ namespace WillsWackyManagers.Utils
 
                 yield return WaitFor.Frames(5);
 
-                var allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
+                var allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || cardData.cardInfo.categories.Contains(CustomCardCategories.instance.CardCategory("AIMinion")) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
                 allCards.Remove(tableFlipCard);
 
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {allCards.Count()} cards are enabled and ready to be swapped out.");
@@ -562,7 +562,7 @@ namespace WillsWackyManagers.Utils
                     cardRarities.RemoveAt(cardRarities.Count - 1); 
                 }
 
-                List<CardInfo> allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
+                List<CardInfo> allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || cardData.cardInfo.categories.Contains(CustomCardCategories.instance.CardCategory("AIMinion")) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
 
                 List<CardInfo> hiddenCards = (List<CardInfo>)ModdingUtils.Utils.Cards.instance.GetFieldValue("hiddenCards");
 
