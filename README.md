@@ -8,6 +8,15 @@ Provides 2 different managers for the community to use:
 <summary>Patches</summary>
 
 ----
+### v 1.4.3
+- Table flip should no longer be able to roll into ninja cards.
+- Fixed an issue where table flip would show up facing backwards.
+
+----
+### v 1.4.2
+- Fixed an issue where table flip would show up facing backwards.
+
+----
 ### v 1.4.1
 - Fixed Erroneous logic for determining when table flip can show up.
 
