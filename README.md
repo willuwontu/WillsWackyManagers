@@ -8,6 +8,11 @@ Provides 2 different managers for the community to use:
 <summary>Patches</summary>
 
 ----
+### v 1.4.4
+- Reroll manager now respects custom rarities
+- Added escape route for reroll and table flip to hopefully reduce the game breaking.
+
+----
 ### v 1.4.3
 - Table flip should no longer be able to roll into ninja cards.
 - Fixed an issue where table flip would show up facing backwards.

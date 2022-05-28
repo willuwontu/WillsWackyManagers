@@ -34,9 +34,9 @@ namespace WillsWackyManagers
     [BepInProcess("Rounds.exe")]
     public class WillsWackyManagers : BaseUnityPlugin
     {
-        private const string ModId = "com.willuwontu.rounds.managers";
+        public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.4.3"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.4.4"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
