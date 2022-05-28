@@ -164,7 +164,11 @@ namespace WillsWackyManagers.Utils
                 yield break;
             }
 
-            yield return new WaitUntil(() => routinesRunning <= 0);
+            float startTime = Time.time;
+
+            yield return new WaitUntil(() => {
+                return ((routinesRunning <= 0) || (Time.time > startTime + 30f));
+            });
 
 
             if (flippingPlayer && tableFlipCard && addCard)
@@ -289,7 +293,7 @@ namespace WillsWackyManagers.Utils
                         {
                             WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is able to have a card added.");
                             var rarity = cardRarities[player][i];
-                            WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID}'s card was originally {RarityName(rarity)}, finding a replacement now.");
+                            WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID}'s card was originally {rarity.ToString()}, finding a replacement now.");
                             var cardChoices = allCards.Where(cardInfo => (CardRarity(cardInfo) == rarity) && (ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, cardInfo))).ToArray();
                             WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is eligible for {cardChoices.Count()} cards");
                             if (cardChoices.Count() > 0)
@@ -465,7 +469,11 @@ namespace WillsWackyManagers.Utils
                 yield break;
             }
 
-            yield return new WaitUntil(() => routinesRunning <= 0);
+            float startTime = Time.time;
+
+            yield return new WaitUntil(() => {
+                return ((routinesRunning <= 0) || (Time.time > startTime + 30f));
+            });
 
             rerollPlayers = new List<Player>();
             reroll = false;
@@ -564,8 +572,17 @@ namespace WillsWackyManagers.Utils
 
                 List<CardInfo> allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || cardData.cardInfo.categories.Contains(CustomCardCategories.instance.CardCategory("AIMinion")) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
 
-                List<CardInfo> hiddenCards = (List<CardInfo>)ModdingUtils.Utils.Cards.instance.GetFieldValue("hiddenCards");
+                List<CardInfo> hiddenCards = new List<CardInfo>();
 
+                try
+                {
+                    hiddenCards = (List<CardInfo>)ModdingUtils.Utils.Cards.instance.GetFieldValue("hiddenCards");
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.Log("Error fetching hidden cards from modding utils.");
+                    UnityEngine.Debug.LogException(e);
+                }
                 List<CardInfo> nulls = hiddenCards.Where(cardData => cardData.categories.Contains(CustomCardCategories.instance.CardCategory("nullCard"))).ToList();
 
                 if (nulls.Count() > 0)
@@ -583,33 +600,39 @@ namespace WillsWackyManagers.Utils
 
                 for (int i = 0; i < cardRarities.Count(); i++)
                 {
-                    var rarity = cardRarities[i];
-                    var originalCard = originalCards[i];
+                    try
+                    {
+                        var rarity = cardRarities[i];
+                        var originalCard = originalCards[i];
 
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                    if (CurseManager.instance.HasCurse(player))
-                    {
-                        ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
-                        WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is available for curse interaction effects");
-                    }
-                    else if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
-                    {
                         ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                    }
+                        if (CurseManager.instance.HasCurse(player))
+                        {
+                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
+                            WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is available for curse interaction effects");
+                        }
+                        else if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
+                        {
+                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
+                        }
 
-                    WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
-                    WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is able to have a card added.");
-                    WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID}'s card was originally {RarityName(rarity)}, finding a replacement now.");
-                    var cardChoices = allCards.Where(cardInfo => (CardRarity(cardInfo) == rarity) && (ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, cardInfo))).ToArray();
-                    WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is eligible for {cardChoices.Count()} cards");
-                    if (cardChoices.Count() > 0)
+                        WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
+                        WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is able to have a card added.");
+                        WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID}'s card was originally {rarity.ToString()}, finding a replacement now.");
+                        var cardChoices = allCards.Where(cardInfo => (CardRarity(cardInfo) == rarity) && (ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, cardInfo))).ToArray();
+                        WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is eligible for {cardChoices.Count()} cards");
+                        if (cardChoices.Count() > 0)
+                        {
+                            var card = RandomCard(cardChoices);
+                            WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is being given {card.cardName}");
+                            ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
+                            //ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
+                        }
+                    }
+                    catch (Exception e)
                     {
-                        var card = RandomCard(cardChoices);
-                        WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is being given {card.cardName}");
-                        ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
-                        //ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
+                        UnityEngine.Debug.LogException(e);
                     }
-
                     yield return WaitFor.Frames(40);
                 }
                 ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
@@ -644,89 +667,73 @@ namespace WillsWackyManagers.Utils
             yield return null;
         }
 
-        private enum Rarity
+        private class Rarity
         {
-            Rare,
-            Uncommon,
-            Common,
-            CommonCurse,
-            UncommonCurse,
-            RareCurse,
-            CommonNull,
-            UncommonNull,
-            RareNull
+            public CardInfo.Rarity rarity;
+            public bool isNull = false;
+            public bool isCurse = false;
+
+            public override bool Equals(object obj) => this.Equals(obj as Rarity);
+
+            public bool Equals(Rarity rarity)
+            {
+                if (rarity is null)
+                {
+                    return false;
+                }
+
+                if (System.Object.ReferenceEquals(this, rarity))
+                {
+                    return true;
+                }
+
+                if (this.GetType() != rarity.GetType())
+                {
+                    return false;
+                }
+
+                return ((this.rarity == rarity.rarity) && (this.isCurse == rarity.isCurse) && (this.isNull == rarity.isNull));
+            }
+
+            public static bool operator ==(Rarity r1, Rarity r2)
+            {
+                if (r1 is null)
+                {
+                    if (r2 is null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                return r1.Equals(r2);
+            }
+
+            public static bool operator !=(Rarity r1, Rarity r2) => !(r1 == r2);
+
+            public override string ToString()
+            {
+                return $"{this.rarity.ToString()}{(this.isCurse ? " curse" : "")}{(this.isNull ? " null" : "")}";
+            }
         }
 
         private string RarityName(Rarity rarity)
         {
-            switch (rarity)
-            {
-                case Rarity.Rare:
-                    return "Rare";
-                case Rarity.Uncommon:
-                    return "Uncommon";
-                case Rarity.Common:
-                    return "Common";
-                case Rarity.RareCurse:
-                    return "Rare Curse";
-                case Rarity.UncommonCurse:
-                    return "Uncommon Curse";
-                case Rarity.CommonCurse:
-                    return "Common Curse";
-                case Rarity.CommonNull:
-                    return "Null";
-                default:
-                    return "No Rarity?";
-            }
+            return $"{rarity.rarity.ToString()}{(rarity.isCurse ? " curse" : "")}{(rarity.isNull ? " null" : "")}";
         }
+
         private Rarity CardRarity(CardInfo cardInfo)
         {
-            Rarity rarity;
+            Rarity rarity = new Rarity();
             if (cardInfo.categories.Contains(CustomCardCategories.instance.CardCategory("nullCard")))
             {
-                switch (cardInfo.rarity)
-                {
-                    case CardInfo.Rarity.Rare:
-                        rarity = Rarity.RareNull;
-                        break;
-                    case CardInfo.Rarity.Uncommon:
-                        rarity = Rarity.UncommonNull;
-                        break;
-                    default:
-                        rarity = Rarity.CommonNull;
-                        break;
-                }
+                rarity.isCurse = true;
             }
-            else if (cardInfo.categories.Contains(CurseManager.instance.curseCategory))
+            if (cardInfo.categories.Contains(CurseManager.instance.curseCategory))
             {
-                switch (cardInfo.rarity)
-                {
-                    case CardInfo.Rarity.Rare:
-                        rarity = Rarity.RareCurse;
-                        break;
-                    case CardInfo.Rarity.Uncommon:
-                        rarity = Rarity.UncommonCurse;
-                        break;
-                    default:
-                        rarity = Rarity.CommonCurse;
-                        break;
-                }
+                rarity.isCurse = true;
             }
-            else
-            {
-                switch (cardInfo.rarity)
-                {
-                    case CardInfo.Rarity.Rare:
-                        rarity = Rarity.Rare;
-                        break;
-                    case CardInfo.Rarity.Uncommon:
-                        rarity = Rarity.Uncommon;
-                        break;
-                    default:
-                        rarity = Rarity.Common;
-                        break;
-                }
-            }
+            rarity.rarity = cardInfo.rarity;
 
             return rarity;
         }
