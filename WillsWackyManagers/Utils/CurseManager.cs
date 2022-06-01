@@ -173,19 +173,14 @@ namespace WillsWackyManagers.Utils
             CardInfo curse = null;
 
             var totalWeight = 0f;
+
+            var rarities = RarityLib.Utils.RarityUtils.Rarities.Values.ToDictionary(r => r.value, r => r);
+
             foreach (var cardInfo in availableChoices)
             {
-                switch (cardInfo.rarity)
+                if (rarities.TryGetValue(cardInfo.rarity, out RarityLib.Utils.Rarity value))
                 {
-                    case CardInfo.Rarity.Common:
-                        totalWeight += 10f;
-                        break;
-                    case CardInfo.Rarity.Uncommon:
-                        totalWeight += 4f;
-                        break;
-                    case CardInfo.Rarity.Rare:
-                        totalWeight += 1f;
-                        break;
+                    totalWeight += (value.relativeRarity * 10f);
                 }
             }
 
@@ -195,17 +190,9 @@ namespace WillsWackyManagers.Utils
 
             foreach (var cardInfo in availableChoices)
             {
-                switch (cardInfo.rarity)
+                if (rarities.TryGetValue(cardInfo.rarity, out RarityLib.Utils.Rarity value))
                 {
-                    case CardInfo.Rarity.Common:
-                        chosenWeight -= 10f;
-                        break;
-                    case CardInfo.Rarity.Uncommon:
-                        chosenWeight -= 4f;
-                        break;
-                    case CardInfo.Rarity.Rare:
-                        chosenWeight -= 1f;
-                        break;
+                    chosenWeight -= (value.relativeRarity * 10f);
                 }
 
                 //WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {cardInfo.cardName} reduced weight to {chosenWeight}.");

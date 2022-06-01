@@ -5,7 +5,12 @@ Provides 2 different managers for the community to use:
 - RerollManager
 
 <details>
-<summary>Patches</summary>
+<summary>Change log</summary>
+
+----
+### v 1.4.5
+- Added Rarity lib as a dependency.
+- Migrated 2 rarities from WWC (Epic, Scarce)
 
 ----
 ### v 1.4.4
