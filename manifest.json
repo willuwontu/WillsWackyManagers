@@ -1,7 +1,7 @@
 {
     "name":"WillsWackyManagers",
     "author_name":"willuwontu",
-    "version_number":"1.4.4",
+    "version_number":"1.4.5",
     "website_url":"https://github.com/willuwontu/WillsWackyManagers",
     "displayName":"Will's Wacky Managers",
     "description":"Various managers for community usage.",
@@ -9,6 +9,7 @@
         "willis81808-UnboundLib-2.6.2",
         "willis81808-MMHook-1.0.0",
         "BepInEx-BepInExPack_ROUNDS-5.4.1100",
+		"Root-RarityLib-1.0.7",
         "Pykess-PlayerJumpPatch-0.0.2",
         "Pykess-CardChoiceSpawnUniqueCardPatch-0.1.2",
         "Pykess-ModdingUtils-0.1.3"

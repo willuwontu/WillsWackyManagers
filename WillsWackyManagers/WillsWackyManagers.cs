@@ -8,6 +8,7 @@ using UnboundLib.Utils.UI;
 using UnboundLib.Networking;
 using UnityEngine;
 using WillsWackyManagers.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.4.4"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.4.5"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -74,6 +75,24 @@ namespace WillsWackyManagers
 
             gameObject.GetOrAddComponent<RerollManager>();
             gameObject.GetOrAddComponent<CurseManager>();
+
+            try
+            {
+                RarityLib.Utils.RarityUtils.AddRarity("Scarce", 0.25f, new Color32(10, 50, 255, 255), new Color32(5, 25, 150, 255));
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
+
+            try
+            {
+                RarityLib.Utils.RarityUtils.AddRarity("Epic", 0.0625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255));
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
 
             { // Config File Stuff
                 // Curse Manager Settings

@@ -38,6 +38,9 @@
     <Reference Include="ModdingUtils">
       <HintPath>$(RoundsFolder)\BepInEx\plugins\ModdingUtils.dll</HintPath>
     </Reference>
+    <Reference Include="RarityLib">
+      <HintPath>$(RoundsFolder)\BepInEx\plugins\RarityLib.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(RoundsFolder)\Rounds_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
