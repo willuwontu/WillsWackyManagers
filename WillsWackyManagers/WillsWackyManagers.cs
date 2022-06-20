@@ -29,6 +29,7 @@ namespace WillsWackyManagers
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
     // Declares our mod to Bepin
     [BepInPlugin(ModId, ModName, Version)]
     // The game our mod is associated with
@@ -66,6 +67,12 @@ namespace WillsWackyManagers
             // Use this to call any harmony patch files your mod may have
             var harmony = new Harmony(ModId);
             harmony.PatchAll();
+
+            RarityLib.Utils.RarityUtils.AddRarity("Scarce", 0.25f, new Color32(10, 50, 255, 255), new Color32(5, 25, 150, 255));
+
+            RarityLib.Utils.RarityUtils.AddRarity("Epic", 0.0625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255));
+
+            RarityLib.Utils.RarityUtils.AddRarity("Mythical", 0.00625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255));
         }
         void Start()
         {
@@ -75,24 +82,6 @@ namespace WillsWackyManagers
 
             gameObject.GetOrAddComponent<RerollManager>();
             gameObject.GetOrAddComponent<CurseManager>();
-
-            try
-            {
-                RarityLib.Utils.RarityUtils.AddRarity("Scarce", 0.25f, new Color32(10, 50, 255, 255), new Color32(5, 25, 150, 255));
-            }
-            catch (Exception e)
-            {
-                UnityEngine.Debug.LogException(e);
-            }
-
-            try
-            {
-                RarityLib.Utils.RarityUtils.AddRarity("Epic", 0.0625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255));
-            }
-            catch (Exception e)
-            {
-                UnityEngine.Debug.LogException(e);
-            }
 
             { // Config File Stuff
                 // Curse Manager Settings
@@ -313,6 +302,14 @@ namespace WillsWackyManagers
                 }
             }
 
+            yield return WaitFor.Frames(10);
+
+            ExitGames.Client.Photon.Hashtable customProperties = PhotonNetwork.LocalPlayer.CustomProperties;
+            customProperties[SettingCoordinator.TableFlipSyncProperty] = false;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(customProperties, null, null);
+
+            yield return WaitFor.Frames(10);
+
             yield break;
         }
 
@@ -437,6 +434,23 @@ namespace WillsWackyManagers
                 popupGo.transform.SetParent(gameGo.transform);
                 popupGo.transform.localScale = Vector3.one;
                 popupGo.AddComponent<UI.PopUpMenu>();
+            }
+        }
+
+        private static class WaitFor
+        {
+            public static IEnumerator Frames(int frameCount)
+            {
+                if (frameCount <= 0)
+                {
+                    throw new ArgumentOutOfRangeException("frameCount", "Cannot wait for less that 1 frame");
+                }
+
+                while (frameCount > 0)
+                {
+                    frameCount--;
+                    yield return null;
+                }
             }
         }
     }
