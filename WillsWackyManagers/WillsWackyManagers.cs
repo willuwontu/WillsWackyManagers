@@ -38,7 +38,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.4.5"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.4.6"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -68,15 +68,31 @@ namespace WillsWackyManagers
             var harmony = new Harmony(ModId);
             harmony.PatchAll();
 
-            RarityLib.Utils.RarityUtils.AddRarity("Scarce", 0.25f, new Color32(10, 50, 255, 255), new Color32(5, 25, 150, 255));
+            List<RarityInfo> rarities = new List<RarityInfo>();
+            rarities.Add(new RarityInfo("Trinket", 3, new Color(0.38f, 0.38f, 0.38f), new Color(0.0978f, 0.1088f, 0.1321f)));
+            rarities.Add(new RarityInfo("Scarce", 0.25f, new Color32(10, 50, 255, 255), new Color32(5, 25, 150, 255)));
+            rarities.Add(new RarityInfo("Epic", 0.0625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255)));
+            rarities.Add(new RarityInfo("Mythical", 0.00625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255)));
+            rarities.Shuffle();
+            rarities.Shuffle();
 
-            RarityLib.Utils.RarityUtils.AddRarity("Epic", 0.0625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255));
+            List<ThemeInfo> themes = new List<ThemeInfo>();
+            themes.Add(new ThemeInfo("CurseGray", new CardThemeColor() { bgColor = new Color(0.34f, 0f, 0.44f), targetColor = new Color(0.24f, 0.24f, 0.24f) }));
+            themes.Shuffle();
+            themes.Shuffle();
 
-            RarityLib.Utils.RarityUtils.AddRarity("Mythical", 0.00625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255));
+            for (int i = 0; i < rarities.Count; i++)
+            {
+                RegisterRarity(rarities[i]);
+            }
+
+            for (int i = 0; i < themes.Count; i++)
+            {
+                RegisterTheme(themes[i]);
+            }
         }
         void Start()
         {
-            instance = this;
 
             gameObject.AddComponent<SettingCoordinator>();
 
@@ -336,7 +352,15 @@ namespace WillsWackyManagers
             MenuHandler.CreateText("Reroll Manager", menu, out TextMeshProUGUI _, 45);
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _, 30);
             var enable = MenuHandler.CreateToggle(enableTableFlipConfig.Value, "Enable Table Flip and Reroll", menu, null);
-            var secondHalf = MenuHandler.CreateToggle(secondHalfTableFlipConfig.Value, "Table Flip becomes uncommon, and can only show up when someone has half the rounds needed to win.", menu, value => { secondHalfTableFlipConfig.Value = value; secondHalfTableFlip = value; });
+            var secondHalf = MenuHandler.CreateToggle(secondHalfTableFlipConfig.Value, "Table Flip becomes uncommon, and can only show up when someone has half the rounds needed to win.", menu, value => { secondHalfTableFlipConfig.Value = value; secondHalfTableFlip = value; if (secondHalfTableFlip)
+                {
+                    RerollManager.instance.tableFlipCard.rarity = CardInfo.Rarity.Uncommon;
+                }
+                else
+                {
+                    RerollManager.instance.tableFlipCard.rarity = CardInfo.Rarity.Rare;
+                }
+            });
             var secondHalfToggle = secondHalf.GetComponent<Toggle>();
 
             enable.GetComponent<Toggle>().onValueChanged.AddListener(value =>
@@ -379,6 +403,15 @@ namespace WillsWackyManagers
             enableCurseRemoval = curseRemovalEnabled;
             enableTableFlip = tableFlipEnabled;
             secondHalfTableFlip = tableFlipSecondHalf;
+
+            if (secondHalfTableFlip)
+            {
+                RerollManager.instance.tableFlipCard.rarity = CardInfo.Rarity.Uncommon;
+            }
+            else
+            {
+                RerollManager.instance.tableFlipCard.rarity = CardInfo.Rarity.Rare;
+            }
 
             WillsWackyManagers.instance.DebugLog($"[WWM][Settings][Sync]\nEnable Curse Spawning: {curseSpawningEnabled}\nEnable Curse Removal: {curseRemovalEnabled}\nEnable Table Flip: {tableFlipEnabled}\nTable Flip Second Half Only: {tableFlipSecondHalf}");
 
@@ -451,6 +484,58 @@ namespace WillsWackyManagers
                     frameCount--;
                     yield return null;
                 }
+            }
+        }
+
+        class RarityInfo
+        {
+            public string name;
+            public float relativeRarity;
+            public Color color;
+            public Color colorOff;
+
+            public RarityInfo(string name, float relativeRarity, Color color, Color colorOff)
+            {
+                this.name = name;
+                this.relativeRarity = relativeRarity;
+                this.color = color;
+                this.colorOff = colorOff;
+            }
+        }
+
+        static int RegisterRarity(RarityInfo info)
+        {
+            try
+            {
+                return RarityLib.Utils.RarityUtils.AddRarity(info.name, info.relativeRarity, info.color, info.colorOff);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        class ThemeInfo
+        {
+            public string name;
+            public CardThemeColor cardThemeColor;
+
+            public ThemeInfo(string name, CardThemeColor cardThemeColor)
+            {
+                this.name = name;
+                this.cardThemeColor = cardThemeColor;
+            }
+        }
+
+        static void RegisterTheme(ThemeInfo info)
+        {
+            try
+            {
+                CardThemeLib.CardThemeLib.instance.CreateOrGetType(info.name, info.cardThemeColor);
+            }
+            catch
+            {
+
             }
         }
     }

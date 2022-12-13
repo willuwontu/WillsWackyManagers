@@ -8,6 +8,10 @@ Provides 2 different managers for the community to use:
 <summary>Change log</summary>
 
 ----
+### v 1.4.6
+- Moved Rarity registration to awake.
+
+----
 ### v 1.4.5
 - Added Rarity lib as a dependency.
 - Migrated 2 rarities from WWC (Epic, Scarce)

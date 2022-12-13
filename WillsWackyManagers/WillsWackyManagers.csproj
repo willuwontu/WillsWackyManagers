@@ -11,7 +11,7 @@
   </ItemGroup>
 	
   <PropertyGroup>
-    <RoundsFolder>D:\Program Files (x86)\Steam\steamapps\common\ROUNDS</RoundsFolder>
+    <RoundsFolder>E:\Program Files (x86)\Steam\steamapps\common\ROUNDS</RoundsFolder>
   </PropertyGroup>
 	
   <ItemGroup>
@@ -34,6 +34,9 @@
     </Reference>
     <Reference Include="CardChoiceSpawnUniqueCardPatch">
       <HintPath>$(RoundsFolder)\BepInEx\plugins\CardChoiceSpawnUniqueCardPatch.dll</HintPath>
+    </Reference>
+    <Reference Include="CardThemeLib">
+      <HintPath>$(RoundsFolder)\BepInEx\plugins\CardThemeLib.dll</HintPath>
     </Reference>
     <Reference Include="ModdingUtils">
       <HintPath>$(RoundsFolder)\BepInEx\plugins\ModdingUtils.dll</HintPath>
