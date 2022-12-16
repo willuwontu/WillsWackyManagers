@@ -15,7 +15,7 @@ namespace WillsWackyManagers.Cards.Curses
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            gun.projectileSize = 0.7f;
+            gun.projectileSize = -0.3f;
             gun.spread = 0.2f;
             gun.reflects = -2;
 
@@ -76,7 +76,7 @@ namespace WillsWackyManagers.Cards.Curses
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
         {
-            return CardThemeColor.CardThemeColorType.EvilPurple;
+            return CurseManager.instance.CurseGray;
         }
         public override string GetModName()
         {

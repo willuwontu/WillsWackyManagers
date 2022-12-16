@@ -8,6 +8,10 @@ Provides 2 different managers for the community to use:
 <summary>Change log</summary>
 
 ----
+### v 1.4.7
+- Added Card Theme Lib as a proper dependency on thunderstore.
+
+----
 ### v 1.4.6
 - Moved Rarity registration to awake.
 

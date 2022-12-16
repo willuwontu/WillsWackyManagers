@@ -28,7 +28,7 @@ namespace WillsWackyManagers.Utils
         private System.Random random = new System.Random();
         private bool deckCustomizationLoaded = false;
 
-        public CardThemeColor.CardThemeColorType CurseGray { get; internal set; }
+        public CardThemeColor.CardThemeColorType CurseGray => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CurseGray", new CardThemeColor() { bgColor = new Color(0.34f, 0f, 0.44f), targetColor = new Color(0.24f, 0.24f, 0.24f) });
 
         /// <summary>
         /// The card category for all curses.

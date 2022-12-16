@@ -30,6 +30,7 @@ namespace WillsWackyManagers
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("root.cardtheme.lib", BepInDependency.DependencyFlags.HardDependency)]
     // Declares our mod to Bepin
     [BepInPlugin(ModId, ModName, Version)]
     // The game our mod is associated with
@@ -38,7 +39,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.4.6"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.4.7"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 

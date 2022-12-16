@@ -727,7 +727,7 @@ namespace WillsWackyManagers.Utils
             Rarity rarity = new Rarity();
             if (cardInfo.categories.Contains(CustomCardCategories.instance.CardCategory("nullCard")))
             {
-                rarity.isCurse = true;
+                rarity.isNull = true;
             }
             if (cardInfo.categories.Contains(CurseManager.instance.curseCategory))
             {
