@@ -47,7 +47,7 @@ namespace WillsWackyManagers.Cards
 
             try
             {
-                art = WillsWackyManagers.instance.WWWMAssets.LoadAsset<GameObject>("C_TableFlip");
+                art = WillsWackyManagers.instance.WWMAssets.LoadAsset<GameObject>("C_TableFlip");
                 var randColor = art.transform.Find("Foreground/Character").gameObject.AddComponent<RandomGraphicColorOnAwake>();
                 randColor.colorA = new Color32(200, 200, 200, 255);
                 randColor.colorB = new Color32(75, 75, 75, 255);

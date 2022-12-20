@@ -1,27 +1,25 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
-using UnboundLib;
-using UnboundLib.Cards;
-using UnboundLib.Utils;
-using UnboundLib.GameModes;
-using UnboundLib.Utils.UI;
-using UnboundLib.Networking;
-using UnityEngine;
-using WillsWackyManagers.Utils;
+using HarmonyLib;
+using Jotunn.Utils;
+using Photon.Pun;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using HarmonyLib;
-using Photon.Pun;
+using UnboundLib;
+using UnboundLib.Cards;
+using UnboundLib.GameModes;
+using UnboundLib.Networking;
+using UnboundLib.Utils.UI;
+using UnityEngine;
+using UnityEngine.UI;
 using WillsWackyManagers.Cards;
 using WillsWackyManagers.Cards.Curses;
-using WillsWackyManagers.Networking;
 using WillsWackyManagers.MonoBehaviours;
-using UnityEngine.UI;
-using CardChoiceSpawnUniqueCardPatch.CustomCategories;
-using Jotunn.Utils;
+using WillsWackyManagers.Networking;
+using WillsWackyManagers.Utils;
 
 namespace WillsWackyManagers
 {
@@ -39,7 +37,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.4.8"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.4.9"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -58,7 +56,7 @@ namespace WillsWackyManagers
         // A way for me to hook onto the menu and add more options in WWC, if needed.
         public GameObject optionsMenu;
 
-        public AssetBundle WWWMAssets { get; private set; }
+        public AssetBundle WWMAssets { get; private set; }
 
         private const bool debug = false;
 
@@ -91,6 +89,8 @@ namespace WillsWackyManagers
             {
                 RegisterTheme(themes[i]);
             }
+
+            WWMAssets = AssetUtils.LoadAssetBundleFromResources("wwccards", typeof(WillsWackyManagers).Assembly);
         }
         void Start()
         {
@@ -115,9 +115,6 @@ namespace WillsWackyManagers
             }
 
             Unbound.RegisterMenu("Will's Wacky Options", () => { }, NewGUI, null, false);
-            Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
-
-            WWWMAssets = AssetUtils.LoadAssetBundleFromResources("wwccards", typeof(WillsWackyManagers).Assembly);
 
 
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, PlayerPickStart);

@@ -11,7 +11,7 @@ using UnityEngine.UI;
 namespace WillsWackyManagers.MonoBehaviours
 {
     [Serializable]
-    class MechCardInfo : CardInfo
+    public class MechCardInfo : CardInfo
     {
         public GameObject accessory;
     }

@@ -8,6 +8,10 @@ Provides 2 different managers for the community to use:
 <summary>Change log</summary>
 
 ----
+### v 1.4.9
+- Small Update to things.
+
+----
 ### v 1.4.8
 - Mythical rarity now has a proper color.
 - Support for mechanic cardbase.

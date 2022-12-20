@@ -11,7 +11,7 @@ using UnityEngine.UI;
 namespace WillsWackyManagers.MonoBehaviours
 {
     [Serializable]
-    class MechCardVisuals : CardVisuals
+    public class MechCardVisuals : CardVisuals
     {
         private void Start()
         {
@@ -42,7 +42,7 @@ namespace WillsWackyManagers.MonoBehaviours
             }
             try
             {
-                typeof(CardVisuals).GetField("selectedColor", BindingFlags.Default | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, CardChoice.instance.GetCardColor2(card.colorTheme));
+                typeof(CardVisuals).GetField("selectedColor", BindingFlags.Default | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, CardChoice.instance.GetCardColor(card.colorTheme));
             }
             catch (Exception e)
             {
@@ -116,6 +116,7 @@ namespace WillsWackyManagers.MonoBehaviours
 
         public Transform accessoryLocation;
         public GameObject defaultAccessory;
+        public TextMeshProUGUI modNameText;
 
         private Transform accessory;
     }
