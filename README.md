@@ -8,6 +8,11 @@ Provides 2 different managers for the community to use:
 <summary>Change log</summary>
 
 ----
+### v 1.4.8
+- Mythical rarity now has a proper color.
+- Support for mechanic cardbase.
+
+----
 ### v 1.4.7
 - Added Card Theme Lib as a proper dependency on thunderstore.
 
