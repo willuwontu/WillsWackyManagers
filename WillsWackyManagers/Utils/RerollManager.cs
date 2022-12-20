@@ -595,7 +595,7 @@ namespace WillsWackyManagers.Utils
                 yield return WaitFor.Frames(20);
 
 
-                ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
+                //ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
                 //ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CustomCardCategories.instance.CardCategory("nullCard"));
 
                 for (int i = 0; i < cardRarities.Count(); i++)
@@ -604,6 +604,11 @@ namespace WillsWackyManagers.Utils
                     {
                         var rarity = cardRarities[i];
                         var originalCard = originalCards[i];
+
+                        if (rarity.isCurse)
+                        {
+                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
+                        }
 
                         ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
                         if (CurseManager.instance.HasCurse(player))
@@ -628,6 +633,10 @@ namespace WillsWackyManagers.Utils
                             ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
                             //ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
                         }
+                        if (rarity.isCurse)
+                        {
+                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -635,7 +644,7 @@ namespace WillsWackyManagers.Utils
                     }
                     yield return WaitFor.Frames(40);
                 }
-                ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
+                //ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
                 //ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CustomCardCategories.instance.CardCategory("nullCard"));
 
                 foreach (var rerollAction in playerRerolledActions)

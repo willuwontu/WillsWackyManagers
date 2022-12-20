@@ -39,7 +39,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.4.7"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.4.8"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -73,7 +73,7 @@ namespace WillsWackyManagers
             rarities.Add(new RarityInfo("Trinket", 3, new Color(0.38f, 0.38f, 0.38f), new Color(0.0978f, 0.1088f, 0.1321f)));
             rarities.Add(new RarityInfo("Scarce", 0.25f, new Color32(10, 50, 255, 255), new Color32(5, 25, 150, 255)));
             rarities.Add(new RarityInfo("Epic", 0.0625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255)));
-            rarities.Add(new RarityInfo("Mythical", 0.00625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255)));
+            rarities.Add(new RarityInfo("Mythical", 0.00625f, new Color32(0, 255, 70, 255), new Color32(125, 0, 20, 255)));
             rarities.Shuffle();
             rarities.Shuffle();
 
@@ -118,6 +118,7 @@ namespace WillsWackyManagers
             Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
 
             WWWMAssets = AssetUtils.LoadAssetBundleFromResources("wwccards", typeof(WillsWackyManagers).Assembly);
+
 
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, PlayerPickStart);
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, PlayerPickEnd);
