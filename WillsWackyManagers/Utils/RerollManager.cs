@@ -367,7 +367,7 @@ namespace WillsWackyManagers.Utils
 
             foreach (var card in cards)
             {
-                Func<CardInfo, Player, Gun, GunAmmo, CharacterData, HealthHandler, Gravity, Block, CharacterStatModifiers, bool> condition = (cardInfo, player, g, ga, d, h, gr, b, s) =>
+                Func<CardInfo, Player, Gun, GunAmmo, CharacterData, HealthHandler, Gravity, Block, CharacterStatModifiers, bool> condition = (cardInfo, person, g, ga, d, h, gr, b, s) =>
                 {
                     var result = true;
 
@@ -540,7 +540,7 @@ namespace WillsWackyManagers.Utils
         /// <param name="addCard">If true, the reroll card will be added to the player, if it exists.</param>
         /// <param name="noRemove">If true, the last card of the player will not be removed as if it were the reroll card.</param>
         /// <returns></returns>
-        public IEnumerator Reroll(Player player, bool addCard = true, bool noRemove = false)
+        public IEnumerator Reroll(Player player, bool addCard = true, bool noRemove = false, CardInfo cardToGive = null)
         {
             if (player && (player ? player.data.currentCards.Count : 0) > 0)
             {
@@ -664,10 +664,13 @@ namespace WillsWackyManagers.Utils
 
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Finished adding cards.");
 
-                if (rerollCard && addCard)
+                if (addCard && (rerollCard || cardToGive))
                 {
                     // Add the Reroll card to the player
-                    ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, rerollCard, true, "", 2f, 2f, true);
+                    try
+                    {
+                        ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, cardToGive ? cardToGive : rerollCard, true, "", 2f, 2f, true);
+                    }catch(Exception e) { UnityEngine.Debug.LogException(e); }
                     //ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, rerollCard);
                 }
                 yield return WaitFor.Frames(40);
@@ -681,6 +684,17 @@ namespace WillsWackyManagers.Utils
             public CardInfo.Rarity rarity;
             public bool isNull = false;
             public bool isCurse = false;
+
+            public override int GetHashCode()
+            {
+                var rarityHash = rarity.GetHashCode();
+                var nullHash = isNull.GetHashCode();
+                var curseHash = isCurse.GetHashCode();
+
+                string hash = rarityHash.ToString() + curseHash.ToString() + nullHash.ToString();
+
+                return hash.GetHashCode();
+            }
 
             public override bool Equals(object obj) => this.Equals(obj as Rarity);
 

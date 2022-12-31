@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="AssetsEmbedded\wwccards" />
     <None Remove="manifest.json" />
     <None Remove="README.md" />
   </ItemGroup>
@@ -15,11 +14,12 @@
   </PropertyGroup>
 	
   <ItemGroup>
-    <EmbeddedResource Include="AssetsEmbedded\wwccards" />
+    <None Remove="*\*.*.meta" />
+    <None Remove="*\*\*.*.meta" />
   </ItemGroup>
 	
   <ItemGroup>
-    <PackageReference Include="UnboundLib" Version="3.1.2" />
+    <PackageReference Include="UnboundLib" Version="3.1.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,6 +59,18 @@
     <Reference Include="PhotonUnityNetworking">
       <HintPath>$(RoundsFolder)\Rounds_Data\Managed\PhotonUnityNetworking.dll</HintPath>
     </Reference>
+    <Reference Include="Sirenix.OdinInspector.Attributes">
+      <HintPath>$(RoundsFolder)\Rounds_Data\Managed\Sirenix.OdinInspector.Attributes.dll</HintPath>
+    </Reference>
+    <Reference Include="Sirenix.OdinInspector.CompatibilityLayer">
+      <HintPath>$(RoundsFolder)\Rounds_Data\Managed\Sirenix.OdinInspector.CompatibilityLayer.dll</HintPath>
+    </Reference>
+    <Reference Include="Sirenix.Serialization.Config">
+      <HintPath>$(RoundsFolder)\Rounds_Data\Managed\Sirenix.Serialization.Config.dll</HintPath>
+    </Reference>
+    <Reference Include="Sirenix.Serialization">
+      <HintPath>$(RoundsFolder)\Rounds_Data\Managed\Sirenix.Serialization.dll</HintPath>
+    </Reference>
     <Reference Include="SonigonAudioEngine.Runtime">
       <HintPath>$(RoundsFolder)\Rounds_Data\Managed\SonigonAudioEngine.Runtime.dll</HintPath>
     </Reference>
@@ -89,6 +101,10 @@
     <Reference Include="UnityEngine.UIModule">
       <HintPath>$(RoundsFolder)\Rounds_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AssetsEmbedded\" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.

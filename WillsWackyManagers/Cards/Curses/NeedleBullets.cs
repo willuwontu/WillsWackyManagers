@@ -15,7 +15,7 @@ namespace WillsWackyManagers.Cards.Curses
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            gun.projectileSize = -0.3f;
+            gun.projectileSize = 0.7f;
             gun.spread = 0.2f;
             gun.reflects = -2;
 

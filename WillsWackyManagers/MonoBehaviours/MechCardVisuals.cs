@@ -28,7 +28,7 @@ namespace WillsWackyManagers.MonoBehaviours
             {
                 typeof(CardVisuals).GetField("group", BindingFlags.Default | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, gridGroup);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 UnityEngine.Debug.Log("Grid Group throwing errors.");
             }
@@ -36,15 +36,15 @@ namespace WillsWackyManagers.MonoBehaviours
             {
                 this.defaultColor = CardChoice.instance.GetCardColor(card.colorTheme);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 UnityEngine.Debug.Log("default color");
             }
             try
             {
-                typeof(CardVisuals).GetField("selectedColor", BindingFlags.Default | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, CardChoice.instance.GetCardColor(card.colorTheme));
+                typeof(CardVisuals).GetField("selectedColor", BindingFlags.Default | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, CardChoice.instance.GetCardColor2(card.colorTheme));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 UnityEngine.Debug.Log("Selected Color");
             }
@@ -53,7 +53,7 @@ namespace WillsWackyManagers.MonoBehaviours
             {
                 typeof(CardVisuals).GetField("part", BindingFlags.Default | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, fakePart);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 UnityEngine.Debug.Log("particles");
             }
@@ -61,7 +61,7 @@ namespace WillsWackyManagers.MonoBehaviours
             {
                 typeof(CardVisuals).GetField("shake", BindingFlags.Default | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, this.GetComponent<ScaleShake>());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 UnityEngine.Debug.Log("Shake throwing errors.");
             }
@@ -69,7 +69,7 @@ namespace WillsWackyManagers.MonoBehaviours
             {
                 typeof(CardVisuals).GetField("cardAnims", BindingFlags.Default | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.NonPublic).SetValue(this, this.GetComponentsInChildren<CardAnimation>());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 UnityEngine.Debug.Log("card anims throwing errors.");
             }
@@ -78,7 +78,7 @@ namespace WillsWackyManagers.MonoBehaviours
                 this.isSelected = !this.firstValueToSet;
                 this.ChangeSelected(this.firstValueToSet);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 UnityEngine.Debug.Log("selection throwing errors.");
             }

@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using TMPro;
 using UnboundLib;
 using UnboundLib.Cards;
@@ -67,11 +68,13 @@ namespace WillsWackyManagers
             var harmony = new Harmony(ModId);
             harmony.PatchAll();
 
+            typeof(Unbound).GetField("templateCard", BindingFlags.Default | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField).SetValue(null, Resources.Load<GameObject>("0 Cards/0. PlainCard").GetComponent<CardInfo>());
+
             List<RarityInfo> rarities = new List<RarityInfo>();
             rarities.Add(new RarityInfo("Trinket", 3, new Color(0.38f, 0.38f, 0.38f), new Color(0.0978f, 0.1088f, 0.1321f)));
             rarities.Add(new RarityInfo("Scarce", 0.25f, new Color32(10, 50, 255, 255), new Color32(5, 25, 150, 255)));
             rarities.Add(new RarityInfo("Epic", 0.0625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255)));
-            rarities.Add(new RarityInfo("Mythical", 0.00625f, new Color32(0, 255, 70, 255), new Color32(125, 0, 20, 255)));
+            rarities.Add(new RarityInfo("Mythical", 0.00625f, new Color32(0, 255, 70, 255), new Color32(0, 125, 35, 255)));
             rarities.Shuffle();
             rarities.Shuffle();
 
@@ -90,15 +93,14 @@ namespace WillsWackyManagers
                 RegisterTheme(themes[i]);
             }
 
+            gameObject.GetOrAddComponent<RerollManager>();
+            gameObject.GetOrAddComponent<CurseManager>();
+            gameObject.AddComponent<SettingCoordinator>();
+
             WWMAssets = AssetUtils.LoadAssetBundleFromResources("wwccards", typeof(WillsWackyManagers).Assembly);
         }
         void Start()
         {
-
-            gameObject.AddComponent<SettingCoordinator>();
-
-            gameObject.GetOrAddComponent<RerollManager>();
-            gameObject.GetOrAddComponent<CurseManager>();
 
             { // Config File Stuff
                 // Curse Manager Settings
@@ -351,7 +353,8 @@ namespace WillsWackyManagers
             MenuHandler.CreateText("Reroll Manager", menu, out TextMeshProUGUI _, 45);
             MenuHandler.CreateText(" ", menu, out TextMeshProUGUI _, 30);
             var enable = MenuHandler.CreateToggle(enableTableFlipConfig.Value, "Enable Table Flip and Reroll", menu, null);
-            var secondHalf = MenuHandler.CreateToggle(secondHalfTableFlipConfig.Value, "Table Flip becomes uncommon, and can only show up when someone has half the rounds needed to win.", menu, value => { secondHalfTableFlipConfig.Value = value; secondHalfTableFlip = value; if (secondHalfTableFlip)
+            var secondHalf = MenuHandler.CreateToggle(secondHalfTableFlipConfig.Value, "Table Flip becomes uncommon, and can only show up when someone has half the rounds needed to win.", menu, value => {
+                secondHalfTableFlipConfig.Value = value; secondHalfTableFlip = value; if (secondHalfTableFlip)
                 {
                     RerollManager.instance.tableFlipCard.rarity = CardInfo.Rarity.Uncommon;
                 }
@@ -440,7 +443,7 @@ namespace WillsWackyManagers
                     if (pickers[player] > 0)
                     {
                         yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
-                        CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i => PlayerManager.instance.players[i].playerID == player.playerID).First(), true);
+                        CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i2 => PlayerManager.instance.players[i2].playerID == player.playerID).First(), true);
                         yield return CardChoice.instance.DoPick(1, player.playerID, PickerType.Player);
                         yield return new WaitForSecondsRealtime(0.1f);
                         yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
