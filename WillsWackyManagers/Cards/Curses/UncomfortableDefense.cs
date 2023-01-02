@@ -39,7 +39,7 @@ namespace WillsWackyManagers.Cards.Curses
         {
             var block = cardInfo.gameObject.GetOrAddComponent<Block>();
             block.InvokeMethod("ResetStats");
-            block.cdMultiplier = 1.2f;
+            block.cdMultiplier = 1.5f;
             block.additionalBlocks = -1;
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
@@ -77,7 +77,7 @@ namespace WillsWackyManagers.Cards.Curses
                 {
                     positive = false,
                     stat = "Block Cooldown",
-                    amount = "+20%",
+                    amount = "+50%",
                     simepleAmount = CardInfoStat.SimpleAmount.aLotOf
                 },
                 new CardInfoStat()

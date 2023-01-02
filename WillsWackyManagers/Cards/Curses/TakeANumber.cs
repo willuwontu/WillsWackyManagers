@@ -74,7 +74,7 @@ namespace WillsWackyManagers.Cards.Curses
                 {
                     positive = false,
                     stat = "Between Bursts",
-                    amount = "+.05s",
+                    amount = "+.5s",
                     simepleAmount = CardInfoStat.SimpleAmount.notAssigned
                 }
             };

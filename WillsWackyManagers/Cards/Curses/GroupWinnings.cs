@@ -5,60 +5,46 @@ using System.Text;
 using System.Threading.Tasks;
 using UnboundLib;
 using UnboundLib.Cards;
+using WillsWackyManagers.MonoBehaviours;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
 using WillsWackyManagers.UnityTools;
+using System.Collections;
+using UnboundLib.GameModes;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class HeavyShields : CustomCard, ICurseCard, IConditionalCard
+    class GroupWinnings : CustomCard, ICurseCard
     {
-        private static CardInfo card;
-        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
-        public bool Condition(Player player, CardInfo card)
-        {
-            if (card != HeavyShields.card)
-            {
-                return true;
-            }
-
-            if (!player || !player.data || !player.data.block)
-            {
-                return true;
-            }
-
-            if (player.data.block.additionalBlocks < 1)
-            {
-                return false;
-            }
-
-            return true;
-        }
-        public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
+        public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            block.cdAdd += 0.25f / block.cdMultiplier;
-            block.SetFieldValue("timeBetweenBlocks", ((float)block.GetFieldValue("timeBetweenBlocks")) + 0.3f);
+            foreach (var person in PlayerManager.instance.players)
+            {
+                if (person.teamID != player.teamID)
+                {
+                    Extensions.CharacterStatModifiersExtension.GetAdditionalData(person.data.stats).shuffles += 1;
+                }
+            }
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            block.SetFieldValue("timeBetweenBlocks", ((float)block.GetFieldValue("timeBetweenBlocks")) - 0.3f);
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} removed from Player {player.playerID}");
         }
 
         protected override string GetTitle()
         {
-            return "Heavy Shields";
+            return "Group Winning";
         }
         protected override string GetDescription()
         {
-            return "It's hard to keep holding it up.";
+            return "Everyone's a winner, except for you.";
         }
         protected override GameObject GetCardArt()
         {
@@ -66,31 +52,18 @@ namespace WillsWackyManagers.Cards.Curses
         }
         protected override CardInfo.Rarity GetRarity()
         {
-            return Rarities.Scarce;
+            return Rarities.Divine;
         }
         protected override CardInfoStat[] GetStats()
         {
             return new CardInfoStat[]
             {
-                new CardInfoStat()
-                {
-                    positive = false,
-                    stat = "Time Between Blocks",
-                    amount = "+0.3s",
-                    simepleAmount = CardInfoStat.SimpleAmount.notAssigned
-                },
-                new CardInfoStat()
-                {
-                    positive = false,
-                    stat = "Block CD",
-                    amount = "+0.25s",
-                    simepleAmount = CardInfoStat.SimpleAmount.notAssigned
-                }
+
             };
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
         {
-            return CardThemeColor.CardThemeColorType.EvilPurple;
+            return CardThemeColor.CardThemeColorType.MagicPink;
         }
         public override string GetModName()
         {
@@ -99,6 +72,24 @@ namespace WillsWackyManagers.Cards.Curses
         public override bool GetEnabled()
         {
             return true;
+        }
+
+        internal static IEnumerator ExtraPicks()
+        {
+            foreach (Player player in PlayerManager.instance.players.ToArray())
+            {
+                while (Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).shuffles > 0)
+                {
+                    Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).shuffles -= 1;
+                    yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
+                    CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i => PlayerManager.instance.players[i].playerID == player.playerID).First(), true);
+                    yield return CardChoice.instance.DoPick(1, player.playerID, PickerType.Player);
+                    yield return new WaitForSecondsRealtime(0.1f);
+                    yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
+                    yield return new WaitForSecondsRealtime(0.1f);
+                }
+            }
+            yield break;
         }
     }
 }

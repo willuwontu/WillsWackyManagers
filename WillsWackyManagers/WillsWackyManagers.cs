@@ -163,6 +163,8 @@ namespace WillsWackyManagers
         {
             yield return new WaitForSecondsRealtime(1f);
 
+            yield return GroupWinnings.ExtraPicks();
+
             yield break;
         }
 
