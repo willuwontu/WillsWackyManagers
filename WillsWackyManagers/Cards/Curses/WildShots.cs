@@ -9,19 +9,20 @@ using WillsWackyManagers.MonoBehaviours;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class WildShots : CustomCard
+    class WildShots : CustomCard, ICurseCard
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
-            gun.reloadTimeAdd = 0.5f;
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
+            gunAmmo.reloadTimeAdd += 0.5f / gunAmmo.reloadTimeMultiplier;
             var backwards = player.gameObject.GetOrAddComponent<WildShots_Mono>();
             backwards.backwardsChance += 10;
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
@@ -67,7 +68,7 @@ namespace WillsWackyManagers.Cards.Curses
                 {
                     positive = false,
                     stat = "Reload Time",
-                    amount = "+0.75s",
+                    amount = "+0.5s",
                     simepleAmount = CardInfoStat.SimpleAmount.aLotLower
                 }
             };

@@ -9,14 +9,35 @@ using WillsWackyManagers.MonoBehaviours;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class Misfire : CustomCard
+    class Misfire : CustomCard, ICurseCard, IConditionalCard
     {
+        private static CardInfo card;
+        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
+        public bool Condition(Player player, CardInfo card)
+        {
+            if (card != Misfire.card)
+            {
+                return true;
+            }
+
+            if (!player || !player.data || !player.data.weaponHandler || !player.data.weaponHandler.gun)
+            {
+                return true;
+            }
+
+            if (player.data.weaponHandler.gun.attackSpeed > 0.2f)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            gun.reloadTime = 1.5f;
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
@@ -24,6 +45,7 @@ namespace WillsWackyManagers.Cards.Curses
         {
             var misfire = player.gameObject.GetOrAddComponent<Misfire_Mono>();
             misfire.misfireChance += 5;
+            gunAmmo.reloadTimeAdd += 1.5f / gunAmmo.reloadTimeMultiplier;
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

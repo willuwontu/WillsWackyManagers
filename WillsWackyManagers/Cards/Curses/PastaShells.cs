@@ -8,11 +8,33 @@ using UnboundLib.Cards;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using WillsWackyManagers.Utils;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class PastaShells : CustomCard
+    class PastaShells : CustomCard, ICurseCard, IConditionalCard
     {
+        private static CardInfo card;
+        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
+        public bool Condition(Player player, CardInfo card)
+        {
+            if (card != PastaShells.card)
+            {
+                return true;
+            }
+
+            if (!player || !player.data || !player.data.weaponHandler || !player.data.weaponHandler.gun)
+            {
+                return true;
+            }
+
+            if (player.data.weaponHandler.gun.damage < 0.25f)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             gun.damage = 0.8f;

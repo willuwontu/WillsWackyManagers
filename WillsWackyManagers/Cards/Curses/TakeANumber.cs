@@ -8,11 +8,33 @@ using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class TakeANumber : CustomCard
+    class TakeANumber : CustomCard, ICurseCard, IConditionalCard
     {
+        private static CardInfo card;
+        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
+        public bool Condition(Player player, CardInfo card)
+        {
+            if (card != TakeANumber.card)
+            {
+                return true;
+            }
+
+            if (!player || !player.data || !player.data.weaponHandler || !player.data.weaponHandler.gun)
+            {
+                return true;
+            }
+
+            if (player.data.weaponHandler.gun.bursts < 2)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             gun.timeBetweenBullets = 0.5f;

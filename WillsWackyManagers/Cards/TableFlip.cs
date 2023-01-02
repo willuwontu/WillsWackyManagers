@@ -10,11 +10,14 @@ using WillsWackyManagers.MonoBehaviours;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using ModdingUtils.Extensions;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards
 {
-    class TableFlip : CustomCard
+    class TableFlip : CustomCard, ISaveableCard
     {
+        public CardInfo Card { get => RerollManager.instance.tableFlipCard; set { if (!RerollManager.instance.tableFlipCard) { RerollManager.instance.tableFlipCard = value; } } }
+
         internal static CardCategory tableFlipCardCategory = CustomCardCategories.instance.CardCategory("Table Flip Card");
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {

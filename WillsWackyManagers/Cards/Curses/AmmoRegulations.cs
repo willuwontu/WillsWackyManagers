@@ -8,11 +8,35 @@ using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
+using Photon.Realtime;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class AmmoRegulations : CustomCard
+    class AmmoRegulations : CustomCard, ICurseCard, IConditionalCard
     {
+        private static CardInfo card;
+        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
+
+        public bool Condition(Player player, CardInfo card)
+        {
+            if (card != AmmoRegulations.card)
+            {
+                return true;
+            }
+
+            if (!player || !player.data || !player.data.weaponHandler || !player.data.weaponHandler.gun)
+            {
+                return true;
+            }
+
+            if (player.data.weaponHandler.gun.GetComponentInChildren<GunAmmo>().maxAmmo < 3)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             gun.ammo = -2;

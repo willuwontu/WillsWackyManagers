@@ -8,14 +8,36 @@ using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class NeedleBullets : CustomCard
+    class NeedleBullets : CustomCard, ICurseCard, IConditionalCard
     {
+        private static CardInfo card;
+        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
+        public bool Condition(Player player, CardInfo card)
+        {
+            if (card != NeedleBullets.card)
+            {
+                return true;
+            }
+
+            if (!player || !player.data || !player.data.weaponHandler || !player.data.weaponHandler.gun)
+            {
+                return true;
+            }
+
+            if (player.data.weaponHandler.gun.reflects < 2)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            gun.projectileSize = 0.7f;
+            gun.projectileSize = -0.3f;
             gun.spread = 0.2f;
             gun.reflects = -2;
 

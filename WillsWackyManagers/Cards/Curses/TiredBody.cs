@@ -12,29 +12,8 @@ using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class HeavyShields : CustomCard, ICurseCard, IConditionalCard
+    class TiredBody : CustomCard, ICurseCard
     {
-        private static CardInfo card;
-        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
-        public bool Condition(Player player, CardInfo card)
-        {
-            if (card != HeavyShields.card)
-            {
-                return true;
-            }
-
-            if (!player || !player.data || !player.data.block)
-            {
-                return true;
-            }
-
-            if (player.data.block.additionalBlocks < 1)
-            {
-                return false;
-            }
-
-            return true;
-        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
         {
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
@@ -42,22 +21,25 @@ namespace WillsWackyManagers.Cards.Curses
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            block.SetFieldValue("timeBetweenBlocks", ((float)block.GetFieldValue("timeBetweenBlocks")) + 0.3f);
+            block.cdAdd += 0.25f / block.cdMultiplier;
+            var obj = new GameObject("A_TiredBody");
+            obj.transform.SetParent(player.transform);
+            obj.AddComponent<TiredBodyMono>();
+            characterStats.objectsAddedToPlayer.Add(obj);
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            block.SetFieldValue("timeBetweenBlocks", ((float)block.GetFieldValue("timeBetweenBlocks")) - 0.3f);
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} removed from Player {player.playerID}");
         }
 
         protected override string GetTitle()
         {
-            return "Heavy Shields";
+            return "Tired Body";
         }
         protected override string GetDescription()
         {
-            return "It's hard to keep holding it up.";
+            return "You just need to take a breather sometimes.";
         }
         protected override GameObject GetCardArt()
         {
@@ -74,8 +56,8 @@ namespace WillsWackyManagers.Cards.Curses
                 new CardInfoStat()
                 {
                     positive = false,
-                    stat = "Time Between Blocks",
-                    amount = "+0.3s",
+                    stat = "Block CD",
+                    amount = "+0.25s",
                     simepleAmount = CardInfoStat.SimpleAmount.notAssigned
                 }
             };
@@ -91,6 +73,31 @@ namespace WillsWackyManagers.Cards.Curses
         public override bool GetEnabled()
         {
             return true;
+        }
+    }
+
+    class TiredBodyMono : MonoBehaviour
+    {
+        Player player;
+
+        private void Start()
+        {
+            player = this.GetComponentInParent<Player>();
+
+            player.data.block.BlockAction += ResetCounterOnEcho;
+        }
+
+        private void ResetCounterOnEcho(BlockTrigger.BlockTriggerType blockTrigger)
+        {
+            if (blockTrigger == BlockTrigger.BlockTriggerType.Echo)
+            {
+                this.player.data.block.counter = 0f;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            player.data.block.BlockAction -= ResetCounterOnEcho;
         }
     }
 }

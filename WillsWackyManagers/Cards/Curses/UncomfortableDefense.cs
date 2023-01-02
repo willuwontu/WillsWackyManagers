@@ -8,11 +8,33 @@ using UnboundLib.Cards;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using WillsWackyManagers.Utils;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class UncomfortableDefense : CustomCard
+    class UncomfortableDefense : CustomCard, ICurseCard, IConditionalCard
     {
+        private static CardInfo card;
+        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
+        public bool Condition(Player player, CardInfo card)
+        {
+            if (card != UncomfortableDefense.card)
+            {
+                return true;
+            }
+
+            if (!player || !player.data || !player.data.block)
+            {
+                return true;
+            }
+
+            if (player.data.block.additionalBlocks < 1)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             var block = cardInfo.gameObject.GetOrAddComponent<Block>();

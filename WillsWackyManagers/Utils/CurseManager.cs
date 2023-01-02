@@ -11,6 +11,7 @@ using System;
 using BepInEx.Bootstrap;
 using Photon.Pun;
 using WillsWackyManagers.UI;
+using ModdingUtils.Patches;
 
 namespace WillsWackyManagers.Utils
 {
@@ -34,6 +35,11 @@ namespace WillsWackyManagers.Utils
         /// The card category for all curses.
         /// </summary>
         public CardCategory curseCategory { get; private set; } = CustomCardCategories.instance.CardCategory("Curse");
+
+        /// <summary>
+        /// Curses that are nice to the palyer they're given.
+        /// </summary>
+        public CardCategory kindCurseCategory { get; private set; } = CustomCardCategories.instance.CardCategory("kindCurse");
 
         /// <summary>
         /// The card category for cards that aren't curses but count as them.
@@ -149,7 +155,7 @@ namespace WillsWackyManagers.Utils
 
             //CardChoice.instance.cards = availableCurses;
 
-            CardInfo curse = FallbackMethod(availableCurses);
+            CardInfo curse = CardChoicePatchGetRanomCard.OrignialGetRanomCard(availableCurses.ToArray()).GetComponent<CardInfo>();
 
             //curse = ((GameObject)CardChoice.instance.InvokeMethod("GetRanomCard")).GetComponent<CardInfo>();
 

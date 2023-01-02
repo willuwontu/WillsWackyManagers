@@ -5,6 +5,8 @@ using UnboundLib.Cards;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
+using Photon.Pun;
+using UnboundLib;
 
 namespace WillsWackyManagers.UnityTools
 {
@@ -22,7 +24,28 @@ namespace WillsWackyManagers.UnityTools
 
                 if (customCard)
                 {
-                    customCard.BuildUnityCard(StandardCallback);
+                    try
+                    {
+                        customCard.block = customCard.gameObject.GetOrAddComponent<Block>();
+                        customCard.block.objectsToSpawn = new List<GameObject>();
+                        customCard.gun = customCard.gameObject.GetOrAddComponent<Gun>();
+                        customCard.gun.objectsToSpawn = new ObjectsToSpawn[0];
+                        customCard.gun.projectiles = new ProjectilesToSpawn[0];
+                        customCard.statModifiers = customCard.gameObject.GetOrAddComponent<CharacterStatModifiers>();
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.LogException(e);
+                    }
+
+                    try
+                    {
+                        customCard.BuildUnityCard(StandardCallback);
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.LogException(e);
+                    }
                 }
                 else
                 {

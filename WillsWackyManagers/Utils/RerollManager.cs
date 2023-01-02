@@ -548,11 +548,17 @@ namespace WillsWackyManagers.Utils
                 List<Rarity> cardRarities = new List<Rarity>();
 
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Getting card rarities for player {player.playerID}");
-                cardRarities = player.data.currentCards.Select(card => 
+                cardRarities = player.data.currentCards.Where(c => !cardsSkippedForRerolls.Contains(c)).Select(card => 
                     { 
                         return CardRarity(card); 
                     }).ToList();
                 originalCards = player.data.currentCards.ToList();
+
+                if (cardRarities.Count > 0 && !noRemove)
+                {
+                    cardRarities = originalCards.Where(card => (!(card == rerollCard || card == tableFlipCard || cardsSkippedForRerolls.Contains(card)))).Select(card => CardRarity(card)).ToList();
+                }
+
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {cardRarities.Count} card rarities found for player {player.playerID}");
                 try
                 {
@@ -562,12 +568,6 @@ namespace WillsWackyManagers.Utils
                 {
                     WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] SOMEBODY NEEDS TO FIX THEIR REMOVECARD FUNCTION.");
                     cardRarities.Clear();
-                }
-
-                if (cardRarities.Count > 0 && !noRemove)
-                {
-                    // Remove the last card from the rerolling player, since it's going to be rerolling
-                    cardRarities.RemoveAt(cardRarities.Count - 1); 
                 }
 
                 List<CardInfo> allCards = CardManager.cards.Values.ToArray().Where(cardData => cardData.enabled && !(cardData.cardInfo.categories.Contains(NoFlip) || cardData.cardInfo.categories.Contains(CustomCardCategories.instance.CardCategory("AIMinion")) || (cardData.cardInfo.cardName.ToLower() == "shuffle"))).Select(card => card.cardInfo).ToList();
@@ -678,6 +678,8 @@ namespace WillsWackyManagers.Utils
 
             yield return null;
         }
+
+        public List<CardInfo> cardsSkippedForRerolls = new List<CardInfo>();
 
         private class Rarity
         {

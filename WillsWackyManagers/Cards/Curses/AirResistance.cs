@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 using UnboundLib;
 using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
+using WillsWackyManagers.UnityTools;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class AirResistance : CustomCard
+    class AirResistance : CustomCard, ICurseCard
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             gun.damageAfterDistanceMultiplier = 0.75f;
-            gun.timeToReachFullMovementMultiplier = 2f;
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }

@@ -8,16 +8,38 @@ using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class RabbitsFoot : CustomCard
+    class RabbitsFoot : CustomCard, ICurseCard, IConditionalCard
     {
+        private static CardInfo card;
+        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
+        public bool Condition(Player player, CardInfo card)
+        {
+            if (card != RabbitsFoot.card)
+            {
+                return true;
+            }
+
+            if (!player)
+            {
+                return true;
+            }
+
+            if (UnityEngine.Random.Range(0, 2) < 1)
+            {
+                return true;
+            }
+
+            return false;
+        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             statModifiers.numberOfJumps = 1;
             statModifiers.movementSpeed = 1.1f;
-            cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
+            cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory, CurseManager.instance.kindCurseCategory };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

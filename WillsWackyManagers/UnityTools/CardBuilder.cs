@@ -5,6 +5,8 @@ using UnboundLib.Cards;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using UnityEngine.Events;
+using WillsWackyManagers.Utils;
+using CardChoiceSpawnUniqueCardPatch;
 
 namespace WillsWackyManagers.UnityTools
 {
@@ -17,13 +19,17 @@ namespace WillsWackyManagers.UnityTools
 
         public virtual void StandardCallback(CardInfo card)
         {
-            if (card is ISaveableCard saveable)
+            if (card.GetComponent<ISaveableCard>() != null && card.GetComponent<ISaveableCard>() is ISaveableCard saveable)
             {
                 saveable.Card = card;
             }
-            if (card is IConditionalCard conditional)
+            if (card.GetComponent<IConditionalCard>() != null && card.GetComponent<IConditionalCard>() is IConditionalCard conditional)
             {
                 ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(conditional.Condition);
+            }
+            if (card.GetComponent<ICurseCard>() != null)
+            {
+                CurseManager.instance.RegisterCurse(card);
             }
         }
     }

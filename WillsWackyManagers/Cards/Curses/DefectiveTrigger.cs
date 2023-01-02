@@ -8,19 +8,27 @@ using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class DefectiveTrigger : CustomCard
+    class DefectiveTrigger : CustomCard, ICurseCard
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
-            gun.attackSpeed = 1.35f;
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
+            if (gun.attackSpeed <= 0f)
+            {
+                gun.attackSpeed = 0.35f;
+            }
+            else
+            {
+                gun.attackSpeed += 0.35f;
+            }
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -52,7 +60,7 @@ namespace WillsWackyManagers.Cards.Curses
                 {
                     positive = false,
                     stat = "Attack Speed",
-                    amount = "-35%",
+                    amount = "+0.35s",
                     simepleAmount = CardInfoStat.SimpleAmount.notAssigned
                 }
             };

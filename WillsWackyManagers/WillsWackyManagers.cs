@@ -20,6 +20,7 @@ using WillsWackyManagers.Cards;
 using WillsWackyManagers.Cards.Curses;
 using WillsWackyManagers.MonoBehaviours;
 using WillsWackyManagers.Networking;
+using WillsWackyManagers.UnityTools;
 using WillsWackyManagers.Utils;
 
 namespace WillsWackyManagers
@@ -30,6 +31,8 @@ namespace WillsWackyManagers
     [BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("root.cardtheme.lib", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("com.CrazyCoders.Rounds.RarityBundle", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("pykess.rounds.plugins.pickncards", BepInDependency.DependencyFlags.HardDependency)]
     // Declares our mod to Bepin
     [BepInPlugin(ModId, ModName, Version)]
     // The game our mod is associated with
@@ -38,7 +41,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.4.9"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.5.0"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -70,23 +73,10 @@ namespace WillsWackyManagers
 
             typeof(Unbound).GetField("templateCard", BindingFlags.Default | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField).SetValue(null, Resources.Load<GameObject>("0 Cards/0. PlainCard").GetComponent<CardInfo>());
 
-            List<RarityInfo> rarities = new List<RarityInfo>();
-            rarities.Add(new RarityInfo("Trinket", 3, new Color(0.38f, 0.38f, 0.38f), new Color(0.0978f, 0.1088f, 0.1321f)));
-            rarities.Add(new RarityInfo("Scarce", 0.25f, new Color32(10, 50, 255, 255), new Color32(5, 25, 150, 255)));
-            rarities.Add(new RarityInfo("Epic", 0.0625f, new Color32(225, 0, 50, 255), new Color32(125, 0, 20, 255)));
-            rarities.Add(new RarityInfo("Mythical", 0.00625f, new Color32(0, 255, 70, 255), new Color32(0, 125, 35, 255)));
-            rarities.Shuffle();
-            rarities.Shuffle();
-
             List<ThemeInfo> themes = new List<ThemeInfo>();
             themes.Add(new ThemeInfo("CurseGray", new CardThemeColor() { bgColor = new Color(0.34f, 0f, 0.44f), targetColor = new Color(0.24f, 0.24f, 0.24f) }));
             themes.Shuffle();
             themes.Shuffle();
-
-            for (int i = 0; i < rarities.Count; i++)
-            {
-                RegisterRarity(rarities[i]);
-            }
 
             for (int i = 0; i < themes.Count; i++)
             {
@@ -96,11 +86,6 @@ namespace WillsWackyManagers
             gameObject.GetOrAddComponent<RerollManager>();
             gameObject.GetOrAddComponent<CurseManager>();
             gameObject.AddComponent<SettingCoordinator>();
-
-            WWMAssets = AssetUtils.LoadAssetBundleFromResources("wwccards", typeof(WillsWackyManagers).Assembly);
-        }
-        void Start()
-        {
 
             { // Config File Stuff
                 // Curse Manager Settings
@@ -116,6 +101,18 @@ namespace WillsWackyManagers
                 secondHalfTableFlip = secondHalfTableFlipConfig.Value;
             }
 
+            WWMAssets = AssetUtils.LoadAssetBundleFromResources("wwccards", typeof(WillsWackyManagers).Assembly);
+
+            GameObject cardLoader = WWMAssets.LoadAsset<GameObject>("WWM CardManager");
+            foreach (CardBuilder cardBuilder in cardLoader.GetComponentsInChildren<CardBuilder>())
+            {
+                cardBuilder.BuildCards();
+            }
+        }
+
+        void Start()
+        {
+
             Unbound.RegisterMenu("Will's Wacky Options", () => { }, NewGUI, null, false);
 
 
@@ -127,31 +124,31 @@ namespace WillsWackyManagers
             GameModeManager.AddHook(GameModeHooks.HookGameEnd, GameEnd);
 
 
-            CustomCard.BuildCard<TableFlip>((cardInfo) => { RerollManager.instance.tableFlipCard = cardInfo; });
-            CustomCard.BuildCard<Reroll>((cardInfo) => { RerollManager.instance.rerollCard = cardInfo; });
+            //CustomCard.BuildCard<TableFlip>((cardInfo) => { RerollManager.instance.tableFlipCard = cardInfo; });
+            //CustomCard.BuildCard<Reroll>((cardInfo) => { RerollManager.instance.rerollCard = cardInfo; });
 
-            { // Curses
-                CustomCard.BuildCard<PastaShells>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<CrookedLegs>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<DrivenToEarth>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<Misfire>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<UncomfortableDefense>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<CounterfeitAmmo>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<NeedleBullets>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<WildShots>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<RabbitsFoot>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<LuckyClover>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<DefectiveTrigger>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<MisalignedSights>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<Damnation>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<FragileBody>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<AmmoRegulations>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<AirResistance>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<LeadBullets>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<AnimePhysics>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<TakeANumber>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-                CustomCard.BuildCard<HeavyShields>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
-            }
+            //{ // Curses
+            //    CustomCard.BuildCard<PastaShells>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<CrookedLegs>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<DrivenToEarth>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<Misfire>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<UncomfortableDefense>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<CounterfeitAmmo>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<NeedleBullets>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<WildShots>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<RabbitsFoot>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<LuckyClover>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<DefectiveTrigger>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<MisalignedSights>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<Damnation>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<FragileBody>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<AmmoRegulations>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<AirResistance>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<LeadBullets>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<AnimePhysics>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<TakeANumber>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //    CustomCard.BuildCard<HeavyShields>(cardInfo => { CurseManager.instance.RegisterCurse(cardInfo); });
+            //}
         }
 
         public void DebugLog(object message)

@@ -9,11 +9,13 @@ using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using ModdingUtils.Extensions;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards
 {
-    class Reroll : CustomCard
+    class Reroll : CustomCard, ISaveableCard
     {
+        public CardInfo Card { get => RerollManager.instance.rerollCard; set { if (!RerollManager.instance.rerollCard) { RerollManager.instance.rerollCard = value; } } }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             cardInfo.GetAdditionalData().canBeReassigned = false;

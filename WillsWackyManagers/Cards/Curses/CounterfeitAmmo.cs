@@ -8,15 +8,36 @@ using UnboundLib.Cards;
 using WillsWackyManagers.Utils;
 using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using UnityEngine;
+using WillsWackyManagers.UnityTools;
 
 namespace WillsWackyManagers.Cards.Curses
 {
-    class CounterfeitAmmo : CustomCard
+    class CounterfeitAmmo : CustomCard, ICurseCard, IConditionalCard
     {
+        private static CardInfo card;
+        public CardInfo Card { get => card; set { if (!card) { card = value; } } }
+        public bool Condition(Player player, CardInfo card)
+        {
+            if (card != CounterfeitAmmo.card)
+            {
+                return true;
+            }
+
+            if (!player || !player.data || !player.data.weaponHandler || !player.data.weaponHandler.gun)
+            {
+                return true;
+            }
+
+            if (player.data.weaponHandler.gun.GetComponentInChildren<GunAmmo>().maxAmmo < 3)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             gun.ammo = -2;
-            gun.reloadTimeAdd = 0.25f;
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
@@ -24,6 +45,7 @@ namespace WillsWackyManagers.Cards.Curses
         {
             gun.bursts = Mathf.Max(gun.bursts -1, 0);
             gun.numberOfProjectiles = Mathf.Max(gun.numberOfProjectiles - 1, 1);
+            gunAmmo.reloadTimeAdd += 0.25f / gunAmmo.reloadTimeMultiplier;
 
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
