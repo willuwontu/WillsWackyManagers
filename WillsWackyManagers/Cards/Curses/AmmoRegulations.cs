@@ -66,7 +66,7 @@ namespace WillsWackyManagers.Cards.Curses
         }
         protected override CardInfo.Rarity GetRarity()
         {
-            return CardInfo.Rarity.Common;
+            return Rarities.Trinket;
         }
         protected override CardInfoStat[] GetStats()
         {
@@ -83,7 +83,7 @@ namespace WillsWackyManagers.Cards.Curses
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
         {
-            return CardThemeColor.CardThemeColorType.EvilPurple;
+            return CurseManager.instance.CorruptedRed;
         }
         public override string GetModName()
         {

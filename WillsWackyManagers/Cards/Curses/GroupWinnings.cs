@@ -45,7 +45,7 @@ namespace WillsWackyManagers.Cards.Curses
         }
         protected override string GetDescription()
         {
-            return "Everyone's a winner, except for you.";
+            return "Everyone's a winner, <color=red>except for you</color>.";
         }
         protected override GameObject GetCardArt()
         {
@@ -64,7 +64,7 @@ namespace WillsWackyManagers.Cards.Curses
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
         {
-            return CardThemeColor.CardThemeColorType.MagicPink;
+            return CurseManager.instance.CursedPink;
         }
         public override string GetModName()
         {

@@ -100,7 +100,7 @@ namespace WillsWackyManagers.Utils
 
         public List<Player> MixUpPlayers = new List<Player>();
 
-        [ObsoleteAttribute("This function is obsolete.", true)]
+        [ObsoleteAttribute("This function is obsolete.", false)]
         internal IEnumerator IMixUpCards(Player player)
         {
             var triggeringPlayer = player;

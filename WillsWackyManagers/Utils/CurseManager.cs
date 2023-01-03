@@ -12,6 +12,7 @@ using BepInEx.Bootstrap;
 using Photon.Pun;
 using WillsWackyManagers.UI;
 using ModdingUtils.Patches;
+using System.Collections.ObjectModel;
 
 namespace WillsWackyManagers.Utils
 {
@@ -29,7 +30,13 @@ namespace WillsWackyManagers.Utils
         private System.Random random = new System.Random();
         private bool deckCustomizationLoaded = false;
 
+        public ReadOnlyCollection<CardInfo> Curses => new ReadOnlyCollection<CardInfo>(curses);
+
         public CardThemeColor.CardThemeColorType CurseGray => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CurseGray", new CardThemeColor() { bgColor = new Color(0.34f, 0f, 0.44f), targetColor = new Color(0.24f, 0.24f, 0.24f) });
+        public CardThemeColor.CardThemeColorType CorruptedRed => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CorruptedRed", new CardThemeColor() { bgColor = new Color32(60,0,0,200), targetColor = new Color32(110,20,20,200) });
+        public CardThemeColor.CardThemeColorType CursedPink => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CursedPink", new CardThemeColor() { bgColor = new Color32(60, 10, 30, 200), targetColor = new Color32(110, 20, 70, 200) });
+        public CardThemeColor.CardThemeColorType FoolsGold => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FoolsGold", new CardThemeColor() { bgColor = new Color32(50, 50, 10, 200), targetColor = new Color32(110, 110, 20, 200) });
+        public CardThemeColor.CardThemeColorType ToxicGreen => CardThemeLib.CardThemeLib.instance.CreateOrGetType("ToxicGreen", new CardThemeColor() { bgColor = new Color32(0, 40, 0, 200), targetColor = new Color32(20, 100, 20, 200) });
 
         /// <summary>
         /// The card category for all curses.

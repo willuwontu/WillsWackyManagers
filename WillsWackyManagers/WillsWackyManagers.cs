@@ -40,7 +40,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.5.0"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.5.1"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -72,19 +72,14 @@ namespace WillsWackyManagers
 
             typeof(Unbound).GetField("templateCard", BindingFlags.Default | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField).SetValue(null, Resources.Load<GameObject>("0 Cards/0. PlainCard").GetComponent<CardInfo>());
 
-            List<ThemeInfo> themes = new List<ThemeInfo>();
-            themes.Add(new ThemeInfo("CurseGray", new CardThemeColor() { bgColor = new Color(0.34f, 0f, 0.44f), targetColor = new Color(0.24f, 0.24f, 0.24f) }));
-            themes.Shuffle();
-            themes.Shuffle();
-
-            for (int i = 0; i < themes.Count; i++)
-            {
-                RegisterTheme(themes[i]);
-            }
-
             gameObject.GetOrAddComponent<RerollManager>();
             gameObject.GetOrAddComponent<CurseManager>();
             gameObject.AddComponent<SettingCoordinator>();
+
+            var _ = CurseManager.instance.CursedPink;
+            _ = CurseManager.instance.CurseGray;
+            _ = CurseManager.instance.CorruptedRed;
+            _ = CurseManager.instance.FoolsGold;
 
             { // Config File Stuff
                 // Curse Manager Settings
@@ -450,58 +445,6 @@ namespace WillsWackyManagers
                     frameCount--;
                     yield return null;
                 }
-            }
-        }
-
-        class RarityInfo
-        {
-            public string name;
-            public float relativeRarity;
-            public Color color;
-            public Color colorOff;
-
-            public RarityInfo(string name, float relativeRarity, Color color, Color colorOff)
-            {
-                this.name = name;
-                this.relativeRarity = relativeRarity;
-                this.color = color;
-                this.colorOff = colorOff;
-            }
-        }
-
-        static int RegisterRarity(RarityInfo info)
-        {
-            try
-            {
-                return RarityLib.Utils.RarityUtils.AddRarity(info.name, info.relativeRarity, info.color, info.colorOff);
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
-        class ThemeInfo
-        {
-            public string name;
-            public CardThemeColor cardThemeColor;
-
-            public ThemeInfo(string name, CardThemeColor cardThemeColor)
-            {
-                this.name = name;
-                this.cardThemeColor = cardThemeColor;
-            }
-        }
-
-        static void RegisterTheme(ThemeInfo info)
-        {
-            try
-            {
-                CardThemeLib.CardThemeLib.instance.CreateOrGetType(info.name, info.cardThemeColor);
-            }
-            catch
-            {
-
             }
         }
     }
