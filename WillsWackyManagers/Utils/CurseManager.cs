@@ -56,8 +56,81 @@ namespace WillsWackyManagers.Utils
         /// </summary>
         public CardCategory curseSpawnerCategory { get; private set; } = CustomCardCategories.instance.CardCategory("Grants Curses");
 
+        private Dictionary<Player, bool> canDrawCurses = new Dictionary<Player, bool>();
+
+        public void PlayerCanDrawCurses(Player player, bool canDraw = true)
+        {
+            canDrawCurses[player] = canDraw;
+        }
+
+        public bool CanPlayerDrawCurses(Player player)
+        {
+            if (canDrawCurses.TryGetValue(player, out bool canDraw))
+            {
+                return canDraw;
+            }
+            return false;
+        }
+
+        private bool CanDrawCursesCondition(Player player, CardInfo card)
+        {
+            if (!curses.Contains(card))
+            {
+                return true;
+            }
+
+            if (!player)
+            {
+                return true;
+            }
+
+            if (canDrawCurses.TryGetValue(player, out bool value))
+            {
+                return value;
+            }
+            return false;
+        }
+
+        private bool CanDrawCurseInteractionCondition(Player player, CardInfo card)
+        {
+            if (!card.categories.Contains(curseInteractionCategory))
+            {
+                return true;
+            }
+
+            if (!player)
+            {
+                return true;
+            }
+
+            if (!HasCurse(player))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool CanDrawCurseSpawnerCondition(Player player, CardInfo card)
+        {
+            if (!card.categories.Contains(curseSpawnerCategory))
+            {
+                return true;
+            }
+
+            if (!WillsWackyManagers.enableCurseSpawning)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private void Start()
         {
+            ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(CanDrawCursesCondition);
+            ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(CanDrawCurseInteractionCondition);
+            ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(CanDrawCurseSpawnerCondition);
             this.ExecuteAfterFrames(50, () =>
             {
                 foreach (var plugin in Chainloader.PluginInfos)
@@ -119,7 +192,7 @@ namespace WillsWackyManagers.Utils
         /// <returns>CardInfo for the generated curse.</returns>
         public CardInfo RandomCurse()
         {
-            var curse = FallbackMethod(activeCurses.ToArray());
+            var curse = CardChoicePatchGetRanomCard.OrignialGetRanomCard(activeCurses.ToArray()).GetComponent<CardInfo>();
             if (!curse)
             {
                 curse = FallbackMethod(curses.ToArray());
@@ -148,7 +221,7 @@ namespace WillsWackyManagers.Utils
         {
             CheckCurses();
 
-            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == curseCategory);
+            canDrawCurses[player] = true;
 
             var enabled = CardChoice.instance.cards.ToArray();
             var availableCurses = activeCurses.Where((card) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card) && condition(card, player)).ToArray();
@@ -161,7 +234,7 @@ namespace WillsWackyManagers.Utils
 
             //CardChoice.instance.cards = enabled;
 
-            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(curseCategory);
+            canDrawCurses[player] = false;
 
             if (!curse || !curses.Contains(curse))
             {

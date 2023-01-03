@@ -8,6 +8,11 @@ Provides 2 different managers for the community to use:
 <summary>Change log</summary>
 
 ----
+### v 1.5.0
+- Cards are now built in Unity.
+- Rarities moved to rarity bundle.
+
+----
 ### v 1.4.10
 - Small Update to things.
 

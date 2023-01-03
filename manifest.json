@@ -1,7 +1,7 @@
 {
     "name":"WillsWackyManagers",
     "author_name":"willuwontu",
-    "version_number":"1.4.10",
+    "version_number":"1.5.0",
     "website_url":"https://github.com/willuwontu/WillsWackyManagers",
     "displayName":"Will's Wacky Managers",
     "description":"Various managers for community usage.",
@@ -13,6 +13,7 @@
         "Pykess-PlayerJumpPatch-0.0.2",
         "Pykess-CardChoiceSpawnUniqueCardPatch-0.1.2",
         "Pykess-ModdingUtils-0.1.3",
-		"Root-CardThemeLib-1.1.1"
+		"Root-CardThemeLib-1.1.1",
+		"CrazyCoders-RarityBundle-0.0.0"
     ]
 }

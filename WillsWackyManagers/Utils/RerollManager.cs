@@ -66,6 +66,25 @@ namespace WillsWackyManagers.Utils
 
         private System.Random random = new System.Random();
 
+        private bool CanDrawFlipCards(Player player, CardInfo card)
+        {
+            if (!card.categories.Contains(NoFlip))
+            {
+                return true;
+            }
+
+            if (!WillsWackyManagers.enableTableFlip)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private void Start()
+        {
+            ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(CanDrawFlipCards);
+        }
+
         private void Awake()
         {
             if (instance == null)
@@ -81,6 +100,7 @@ namespace WillsWackyManagers.Utils
 
         public List<Player> MixUpPlayers = new List<Player>();
 
+        [ObsoleteAttribute("This function is obsolete.", true)]
         internal IEnumerator IMixUpCards(Player player)
         {
             var triggeringPlayer = player;
@@ -222,6 +242,7 @@ namespace WillsWackyManagers.Utils
         /// </summary>
         /// <param name="addCard">Whether the flipping player (if one exists) should be given the Table Flip Card (if it exists).</param>
         /// <returns></returns>
+        [ObsoleteAttribute("This function is obsolete.", true)]
         public IEnumerator IFlipTable(bool addCard = true)
         {
 
@@ -277,17 +298,8 @@ namespace WillsWackyManagers.Utils
                     WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Initiating round {i + 1} of readding cards to players.");
                     foreach (var player in PlayerManager.instance.players)
                     {
-                        ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
-                        ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                        if (CurseManager.instance.HasCurse(player))
-                        {
-                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
-                            WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is available for curse interaction effects");
-                        }
-                        else if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
-                        {
-                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                        }
+                        bool couldDraw = CurseManager.instance.CanPlayerDrawCurses(player);
+                        CurseManager.instance.PlayerCanDrawCurses(player);
                         WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
                         if (i < cardRarities[player].Count)
                         {
@@ -304,7 +316,7 @@ namespace WillsWackyManagers.Utils
                                 //yield return ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card, 1f);
                             }
                         }
-                        ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
+                        CurseManager.instance.PlayerCanDrawCurses(player, couldDraw);
                         yield return WaitFor.Frames(30);
                     }
 
@@ -359,88 +371,6 @@ namespace WillsWackyManagers.Utils
         }
 
         private List<Player> flippedPlayers = new List<Player>();
-
-        private IEnumerator IGetCardsForPlayer(Player player, CardInfo[] cards)
-        {
-            flippedPlayers.Add(player);
-            List<CardInfo> newCards = new List<CardInfo>();
-
-            foreach (var card in cards)
-            {
-                Func<CardInfo, Player, Gun, GunAmmo, CharacterData, HealthHandler, Gravity, Block, CharacterStatModifiers, bool> condition = (cardInfo, person, g, ga, d, h, gr, b, s) =>
-                {
-                    var result = true;
-
-                    if (CardRarity(cardInfo) != CardRarity(card))
-                    {
-                        result = false;
-                    }
-
-                    if (!ModdingUtils.Utils.Cards.instance.CardDoesNotConflictWithCards(cardInfo, newCards.ToArray()))
-                    {
-                        result = false;
-                    }
-
-                    if (cardInfo.categories.Contains(NoFlip))
-                    {
-                        result = false;
-                    }
-
-                    return result;
-                };
-
-                // Remove the blacklist for curses if the card is a curse.
-                if (CurseManager.instance.IsCurse(card))
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
-                }
-                else if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseCategory))
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
-                }
-
-                // Remove the blacklist for curse interaction cards if there is a curse.
-                ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                if (newCards.Where(cardInfo => CurseManager.instance.IsCurse(cardInfo)).ToArray().Length > 0 || CurseManager.instance.HasCurse(player))
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
-                }
-                else if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                }
-
-                var newCard = GetRandomCardWithCondition(player, condition);
-                newCards.Add(newCard);
-
-                WillsWackyManagers.instance.DebugLog($"[WWM][Debugging][Table Flip] Found {newCard.cardName} for Player {player.playerID}.");
-
-                if (newCard.categories.Contains(CurseManager.instance.curseInteractionCategory))
-                {
-                    ModdingUtils.Utils.Cards.instance.AddCardsToPlayer(player, newCards.ToArray(), false, null, null, null, true);
-                    yield return WaitFor.Frames(80);
-                    newCards.Clear();
-                    newCards = new List<CardInfo>();
-                }
-
-                yield return null;
-            }
-
-            if (newCards.ToArray().Length > 0)
-            {
-                ModdingUtils.Utils.Cards.instance.AddCardsToPlayer(player, newCards.ToArray(), false, null, null, null, true);
-                yield return WaitFor.Frames(80);
-            }
-
-            flippedPlayers.RemoveAll(person => person == player);
-
-            yield break;
-        }
-
-        private CardInfo GetRandomCardWithCondition(Player player, Func<CardInfo, Player, Gun, GunAmmo, CharacterData, HealthHandler, Gravity, Block, CharacterStatModifiers, bool> condition, int maxAttempts = 1000)
-        {
-            return ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, player.data.weaponHandler.gun, player.data.weaponHandler.gun.GetComponentInChildren<GunAmmo>(), player.data, player.data.healthHandler, player.GetComponent<Gravity>(), player.data.block, player.data.stats, condition, maxAttempts);
-        }
 
         /// <summary>
         /// Initiates any rerolls in the queue.
@@ -604,21 +534,11 @@ namespace WillsWackyManagers.Utils
                     {
                         var rarity = cardRarities[i];
                         var originalCard = originalCards[i];
-
+                        bool couldDraw = false;
                         if (rarity.isCurse)
                         {
-                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseCategory);
-                        }
-
-                        ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                        if (CurseManager.instance.HasCurse(player))
-                        {
-                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
-                            WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is available for curse interaction effects");
-                        }
-                        else if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
-                        {
-                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
+                            couldDraw = CurseManager.instance.CanPlayerDrawCurses(player);
+                            CurseManager.instance.PlayerCanDrawCurses(player);
                         }
 
                         WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
@@ -633,9 +553,10 @@ namespace WillsWackyManagers.Utils
                             ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, card, false, "", 2f, 2f, true);
                             //ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
                         }
+
                         if (rarity.isCurse)
                         {
-                            ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
+                            CurseManager.instance.PlayerCanDrawCurses(player, couldDraw);
                         }
                     }
                     catch (Exception e)

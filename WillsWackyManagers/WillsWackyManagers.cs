@@ -32,7 +32,6 @@ namespace WillsWackyManagers
     [BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("root.cardtheme.lib", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.CrazyCoders.Rounds.RarityBundle", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("pykess.rounds.plugins.pickncards", BepInDependency.DependencyFlags.HardDependency)]
     // Declares our mod to Bepin
     [BepInPlugin(ModId, ModName, Version)]
     // The game our mod is associated with
@@ -170,18 +169,6 @@ namespace WillsWackyManagers
 
         IEnumerator PlayerPickStart(IGameModeHandler gm)
         {
-            foreach (var player in PlayerManager.instance.players)
-            {
-                if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                }
-                if (CurseManager.instance.HasCurse(player))
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll(category => category == CurseManager.instance.curseInteractionCategory);
-                    WillsWackyManagers.instance.DebugLog($"[WWM] Player {player.playerID} is available for curse interaction effects");
-                }
-            }
             yield break;
         }
 
@@ -229,16 +216,7 @@ namespace WillsWackyManagers
         {
             foreach (var player in PlayerManager.instance.players)
             {
-                // Curses are always disabled as an option for players to choose
-                if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseCategory))
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseCategory);
-                }
-                if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseInteractionCategory))
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseInteractionCategory);
-                }
-
+                CurseManager.instance.PlayerCanDrawCurses(player,false);
                 // If Reroll cards are disabled, we blacklist them as an option to be taken.
                 if (!enableTableFlip)
                 {
@@ -250,19 +228,6 @@ namespace WillsWackyManagers
                 else
                 {
                     ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll((category) => category == RerollManager.instance.NoFlip);
-                }
-
-                // If curse spawning cards are disabled, we blacklist them as an option for players.
-                if (!enableCurseSpawning)
-                {
-                    if (!ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Contains(CurseManager.instance.curseSpawnerCategory))
-                    {
-                        ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.Add(CurseManager.instance.curseSpawnerCategory);
-                    }
-                }
-                else
-                {
-                    ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).blacklistedCategories.RemoveAll((category) => category == CurseManager.instance.curseSpawnerCategory);
                 }
             }
 

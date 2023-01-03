@@ -19,6 +19,7 @@ namespace WillsWackyManagers.Cards.Curses
     {
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
+            ModdingUtils.Extensions.CardInfoExtension.GetAdditionalData(cardInfo).canBeReassigned = false;
             cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
