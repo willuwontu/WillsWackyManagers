@@ -27,10 +27,20 @@ namespace WillsWackyManagers.UnityTools
                     try
                     {
                         customCard.block = customCard.gameObject.GetOrAddComponent<Block>();
-                        customCard.block.objectsToSpawn = new List<GameObject>();
+                        if (customCard.block.objectsToSpawn == null)
+                        {
+                            customCard.block.objectsToSpawn = new List<GameObject>();
+                        }
+                        
                         customCard.gun = customCard.gameObject.GetOrAddComponent<Gun>();
-                        customCard.gun.objectsToSpawn = new ObjectsToSpawn[0];
-                        customCard.gun.projectiles = new ProjectilesToSpawn[0];
+                        if (customCard.gun.objectsToSpawn == null)
+                        {
+                            customCard.gun.objectsToSpawn = new ObjectsToSpawn[0];
+                        }
+                        if (customCard.gun.projectiles == null)
+                        {
+                            customCard.gun.projectiles = new ProjectilesToSpawn[0];
+                        }
                         customCard.statModifiers = customCard.gameObject.GetOrAddComponent<CharacterStatModifiers>();
                     }
                     catch (Exception e)

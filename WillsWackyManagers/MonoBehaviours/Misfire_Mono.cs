@@ -3,11 +3,12 @@ using UnityEngine.UI;
 using UnboundLib;
 using System;
 using Photon.Pun;
+using ModdingUtils;
 
 namespace WillsWackyManagers.MonoBehaviours
 {
     [DisallowMultipleComponent]
-    public class Misfire_Mono : MonoBehaviourPun
+    public class Misfire_Mono : MonoBehaviourPun, ModdingUtils.GameModes.IPointStartHookHandler
     {
         public int misfireChance = 0;
         private static System.Random random = new System.Random();
@@ -21,6 +22,7 @@ namespace WillsWackyManagers.MonoBehaviours
         private void Start()
         {
             data = GetComponentInParent<CharacterData>();
+            ModdingUtils.GameModes.InterfaceGameModeHooksManager.instance.RegisterHooks(this);
         }
 
         private void Update()
@@ -35,12 +37,6 @@ namespace WillsWackyManagers.MonoBehaviours
                     gunAmmo = gun.GetComponentInChildren<GunAmmo>();
                     gun.ShootPojectileAction += OnShootProjectileAction;
                 }
-            }
-
-            if (!(player is null) && player.gameObject.activeInHierarchy && !coroutineStarted)
-            {
-                coroutineStarted = true;
-                InvokeRepeating(nameof(CheckIfValid), 0, 1f);
             }
         }
 
@@ -67,12 +63,17 @@ namespace WillsWackyManagers.MonoBehaviours
             }
         }
 
+        public void OnPointStart()
+        {
+            CheckIfValid();
+        }
+
         private void CheckIfValid()
         {
             var haveMisfire = false;
             for (int i = 0; i < player.data.currentCards.Count; i++)
             {
-                if (player.data.currentCards[i].cardName.ToLower() == "Misfire".ToLower())
+                if (misfireChance <= 0)
                 {
                     haveMisfire = true;
                     break;
@@ -87,6 +88,7 @@ namespace WillsWackyManagers.MonoBehaviours
 
         private void OnDestroy()
         {
+            ModdingUtils.GameModes.InterfaceGameModeHooksManager.instance.RemoveHooks(this);
             gun.ShootPojectileAction -= OnShootProjectileAction;
         }
 

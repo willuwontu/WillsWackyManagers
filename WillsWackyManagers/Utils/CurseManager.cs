@@ -37,6 +37,7 @@ namespace WillsWackyManagers.Utils
         public CardThemeColor.CardThemeColorType CursedPink => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CursedPink", new CardThemeColor() { bgColor = new Color32(60, 10, 30, 200), targetColor = new Color32(110, 20, 70, 200) });
         public CardThemeColor.CardThemeColorType FoolsGold => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FoolsGold", new CardThemeColor() { bgColor = new Color32(50, 50, 10, 200), targetColor = new Color32(110, 110, 20, 200) });
         public CardThemeColor.CardThemeColorType ToxicGreen => CardThemeLib.CardThemeLib.instance.CreateOrGetType("ToxicGreen", new CardThemeColor() { bgColor = new Color32(0, 40, 0, 200), targetColor = new Color32(20, 100, 20, 200) });
+        public CardThemeColor.CardThemeColorType FallenPurple => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FallenPurple", new CardThemeColor() { bgColor = new Color32(50, 10, 50, 200), targetColor = new Color32(110, 20, 110, 200) });
 
         /// <summary>
         /// The card category for all curses.

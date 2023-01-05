@@ -20,7 +20,9 @@ namespace WillsWackyManagers.MonoBehaviours
                 if (child.gameObject == this.trapEffectText)
                 {
                     real.text = trap.text;
-                    UnityEngine.GameObject.Destroy(child);
+                    realEffectText.SetActive(true);
+                    trapEffectText.SetActive(false);
+                    UnityEngine.GameObject.Destroy(trapEffectText);
                 }
             }
         }

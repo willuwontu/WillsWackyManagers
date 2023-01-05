@@ -91,7 +91,7 @@ namespace WillsWackyManagers.Cards.Curses
         }
         protected override CardThemeColor.CardThemeColorType GetTheme()
         {
-            return CardThemeColor.CardThemeColorType.TechWhite;
+            return CurseManager.instance.CurseGray;
         }
         public override string GetModName()
         {

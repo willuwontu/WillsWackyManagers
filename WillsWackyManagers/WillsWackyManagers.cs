@@ -40,7 +40,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.5.1"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.5.3"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -80,6 +80,7 @@ namespace WillsWackyManagers
             _ = CurseManager.instance.CurseGray;
             _ = CurseManager.instance.CorruptedRed;
             _ = CurseManager.instance.FoolsGold;
+            _ = CurseManager.instance.FallenPurple;
 
             { // Config File Stuff
                 // Curse Manager Settings
