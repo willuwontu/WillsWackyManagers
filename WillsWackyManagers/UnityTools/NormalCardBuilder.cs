@@ -13,7 +13,7 @@ namespace WillsWackyManagers.UnityTools
     [Serializable]
     public class NormalCardBuilder : CardBuilder
     {
-        [ShowInInspector]
+        [ShowInInspector, Searchable]
         public GameObject[] cardsToRegister;
 
         public override void BuildCards()

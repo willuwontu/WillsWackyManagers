@@ -26,18 +26,53 @@ namespace WillsWackyManagers.Utils
         /// </summary>
         public static CurseManager instance { get; private set; }
         private List<CardInfo> curses = new List<CardInfo>();
-        private List<CardInfo> activeCurses = new List<CardInfo>();
+        private List<CardInfo> ActiveCurses => curses.Intersect(CardManager.cards.Values.ToArray().Where((card) => card.enabled).Select(card => card.cardInfo).ToArray()).ToList();
         private System.Random random = new System.Random();
         private bool deckCustomizationLoaded = false;
 
         public ReadOnlyCollection<CardInfo> Curses => new ReadOnlyCollection<CardInfo>(curses);
 
         public CardThemeColor.CardThemeColorType CurseGray => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CurseGray", new CardThemeColor() { bgColor = new Color(0.34f, 0f, 0.44f), targetColor = new Color(0.24f, 0.24f, 0.24f) });
+        /// <summary>
+        /// Counterpart to DestructiveRed
+        /// </summary>
         public CardThemeColor.CardThemeColorType CorruptedRed => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CorruptedRed", new CardThemeColor() { bgColor = new Color32(60,0,0,200), targetColor = new Color32(110,20,20,200) });
+        /// <summary>
+        /// Counterpart to MagicPink
+        /// </summary>
         public CardThemeColor.CardThemeColorType CursedPink => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CursedPink", new CardThemeColor() { bgColor = new Color32(60, 10, 30, 200), targetColor = new Color32(110, 20, 70, 200) });
+        /// <summary>
+        /// Counterpart to FirepowerYellow
+        /// </summary>
         public CardThemeColor.CardThemeColorType FoolsGold => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FoolsGold", new CardThemeColor() { bgColor = new Color32(50, 50, 10, 200), targetColor = new Color32(110, 110, 20, 200) });
+        /// <summary>
+        /// Counterpart to PoisonGreen
+        /// </summary>
         public CardThemeColor.CardThemeColorType ToxicGreen => CardThemeLib.CardThemeLib.instance.CreateOrGetType("ToxicGreen", new CardThemeColor() { bgColor = new Color32(0, 40, 0, 200), targetColor = new Color32(20, 100, 20, 200) });
+        /// <summary>
+        /// Counterpart to EvilPurple
+        /// </summary>
         public CardThemeColor.CardThemeColorType FallenPurple => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FallenPurple", new CardThemeColor() { bgColor = new Color32(50, 10, 50, 200), targetColor = new Color32(110, 20, 110, 200) });
+        /// <summary>
+        /// Counterpart to NatureBrown
+        /// </summary>
+        public CardThemeColor.CardThemeColorType ShitBrown => CardThemeLib.CardThemeLib.instance.CreateOrGetType("ShitBrown", new CardThemeColor() { bgColor = new Color32(50, 40, 0, 200), targetColor = new Color32(110, 90, 20, 200) });
+        /// <summary>
+        /// Counterpart to ColdBlue
+        /// </summary>
+        public CardThemeColor.CardThemeColorType FrozenBlue => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FrozenBlue", new CardThemeColor() { bgColor = new Color32(0, 40, 50, 200), targetColor = new Color32(20, 90, 110, 200) });
+        /// <summary>
+        /// Counterpart to FracturedBlue
+        /// </summary>
+        public CardThemeColor.CardThemeColorType FracturedBlue => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FracturedBlue", new CardThemeColor() { bgColor = new Color32(0, 0, 50, 200), targetColor = new Color32(20, 20, 110, 200) });
+        /// <summary>
+        /// Counterpart to TechWhite
+        /// </summary>
+        public CardThemeColor.CardThemeColorType ObseleteWhite => CardThemeLib.CardThemeLib.instance.CreateOrGetType("ObseleteWhite", new CardThemeColor() { bgColor = new Color32(40, 40, 40, 200), targetColor = new Color32(110, 110, 110, 200) });
+        /// <summary>
+        /// Counterpart to DefaultBlack
+        /// </summary>
+        public CardThemeColor.CardThemeColorType DefaultWhite => CardThemeLib.CardThemeLib.instance.CreateOrGetType("DefaultWhite", new CardThemeColor() { bgColor = new Color32(255, 255, 255, 255), targetColor = new Color32(255, 255, 255, 255) });
 
         /// <summary>
         /// The card category for all curses.
@@ -187,7 +222,7 @@ namespace WillsWackyManagers.Utils
 
         private void CheckCurses()
         {
-            activeCurses = curses.Intersect(CardManager.cards.Values.ToArray().Where((card) => card.enabled).Select(card => card.cardInfo).ToArray()).ToList();
+            var _ = ActiveCurses;
             //foreach (var item in activeCurses)
             //{
             //    WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] {item.cardName} is an enabled curse.");
@@ -200,7 +235,7 @@ namespace WillsWackyManagers.Utils
         /// <returns>CardInfo for the generated curse.</returns>
         public CardInfo RandomCurse()
         {
-            var curse = CardChoicePatchGetRanomCard.OrignialGetRanomCard(activeCurses.ToArray()).GetComponent<CardInfo>();
+            var curse = CardChoicePatchGetRanomCard.OrignialGetRanomCard(ActiveCurses.ToArray()).GetComponent<CardInfo>();
             if (!curse)
             {
                 curse = FallbackMethod(curses.ToArray());
@@ -231,12 +266,24 @@ namespace WillsWackyManagers.Utils
 
             canDrawCurses[player] = true;
 
-            var enabled = CardChoice.instance.cards.ToArray();
-            var availableCurses = activeCurses.Where((card) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card) && condition(card, player)).ToArray();
+            var availableCurses = ActiveCurses.Where((card) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card) && condition(card, player)).ToArray();
 
             //CardChoice.instance.cards = availableCurses;
 
-            CardInfo curse = CardChoicePatchGetRanomCard.OrignialGetRanomCard(availableCurses.ToArray()).GetComponent<CardInfo>();
+            CardInfo curse = null;
+
+            try
+            {
+                curse = CardChoicePatchGetRanomCard.OrignialGetRanomCard(availableCurses.ToArray()).GetComponent<CardInfo>();
+            }
+            catch (NullReferenceException a)
+            {
+
+            }
+            catch (Exception e) 
+            { 
+                UnityEngine.Debug.LogException(e); 
+            }
 
             //curse = ((GameObject)CardChoice.instance.InvokeMethod("GetRanomCard")).GetComponent<CardInfo>();
 
@@ -247,7 +294,7 @@ namespace WillsWackyManagers.Utils
             if (!curse || !curses.Contains(curse))
             {
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] curse didn't exist, getting one now.");
-                curse = FallbackMethod(activeCurses.ToArray());
+                curse = FallbackMethod(ActiveCurses.ToArray());
                 if (!curse)
                 {
                     curse = FallbackMethod(curses.ToArray());
@@ -368,7 +415,7 @@ namespace WillsWackyManagers.Utils
 
             if (activeOnly)
             {
-                result = activeCurses.ToArray();
+                result = ActiveCurses.ToArray();
             }
             else
             {

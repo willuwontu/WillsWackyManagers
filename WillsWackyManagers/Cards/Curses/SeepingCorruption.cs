@@ -41,13 +41,13 @@ namespace WillsWackyManagers.Cards.Curses
                 {
                     foreach (var curse in CurseManager.instance.Curses)
                     {
-                        RarityUtils.AjustCardRarityModifier(curse, 1);
+                        RarityUtils.AjustCardRarityModifier(curse, 1, 0);
                     }
                 }
             }
             else
             {
-                CurseManager.instance.PlayerCanDrawCurses(player);
+                CurseManager.instance.PlayerCanDrawCurses(player, true);
             }
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
@@ -61,7 +61,7 @@ namespace WillsWackyManagers.Cards.Curses
                 {
                     foreach (var curse in CurseManager.instance.Curses)
                     {
-                        RarityUtils.AjustCardRarityModifier(curse, -1*kvp.Value);
+                        RarityUtils.AjustCardRarityModifier(curse, -1*kvp.Value, 0);
                     }
                 }
             }
