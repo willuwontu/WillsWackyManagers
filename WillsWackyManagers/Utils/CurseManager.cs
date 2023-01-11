@@ -13,6 +13,7 @@ using Photon.Pun;
 using WillsWackyManagers.UI;
 using ModdingUtils.Patches;
 using System.Collections.ObjectModel;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace WillsWackyManagers.Utils
 {
@@ -264,6 +265,7 @@ namespace WillsWackyManagers.Utils
         {
             CheckCurses();
 
+            bool canDraw = CanPlayerDrawCurses(player);
             canDrawCurses[player] = true;
 
             var availableCurses = ActiveCurses.Where((card) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card) && condition(card, player)).ToArray();
@@ -289,7 +291,7 @@ namespace WillsWackyManagers.Utils
 
             //CardChoice.instance.cards = enabled;
 
-            canDrawCurses[player] = false;
+            canDrawCurses[player] = canDraw;
 
             if (!curse || !curses.Contains(curse))
             {
@@ -302,6 +304,30 @@ namespace WillsWackyManagers.Utils
             }
 
             return curse;
+        }
+
+        public bool PlayerIsAllowedCurse(Player player, CardInfo card)
+        {
+            if (player == null)
+            {
+                return true;
+            }
+
+            if (card == null || !curses.Contains(card))
+            {
+                return false;
+            }
+
+            bool canDraw = CurseManager.instance.CanPlayerDrawCurses(player);
+            CurseManager.instance.PlayerCanDrawCurses(player, true);
+
+            if (ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card))
+            {
+                return true;
+            }
+            CurseManager.instance.PlayerCanDrawCurses(player, canDraw);
+
+            return false;
         }
 
         private CardInfo FallbackMethod(CardInfo[] availableChoices)
