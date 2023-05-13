@@ -5,7 +5,7 @@ namespace WillsWackyManagers.Patches
 {
     [HarmonyPatch(typeof(CardRarityColor))]
     class CardRarityColor_Patch
-    {
+    { 
         [HarmonyPrefix]
         [HarmonyPatch("Awake")]
         static bool StopError(CardRarityColor __instance)

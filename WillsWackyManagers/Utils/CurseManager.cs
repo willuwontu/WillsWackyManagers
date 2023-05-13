@@ -296,7 +296,11 @@ namespace WillsWackyManagers.Utils
             if (!curse || !curses.Contains(curse))
             {
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] curse didn't exist, getting one now.");
-                curse = FallbackMethod(ActiveCurses.ToArray());
+                curse = FallbackMethod(availableCurses.ToArray());
+                if (!curse)
+                {
+                    curse = FallbackMethod(ActiveCurses.ToArray());
+                }
                 if (!curse)
                 {
                     curse = FallbackMethod(curses.ToArray());

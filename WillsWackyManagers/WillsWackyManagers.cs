@@ -40,7 +40,7 @@ namespace WillsWackyManagers
     {
         public const string ModId = "com.willuwontu.rounds.managers";
         private const string ModName = "Will's Wacky Managers";
-        public const string Version = "1.5.8"; // What version are we on (major.minor.patch)?
+        public const string Version = "1.5.9"; // What version are we on (major.minor.patch)?
         internal const string ModInitials = "WWM";
         public const string CurseInitials = "Curse";
 
@@ -102,12 +102,6 @@ namespace WillsWackyManagers
             }
 
             WWMAssets = AssetUtils.LoadAssetBundleFromResources("wwccards", typeof(WillsWackyManagers).Assembly);
-
-            GameObject cardLoader = WWMAssets.LoadAsset<GameObject>("WWM CardManager");
-            foreach (CardBuilder cardBuilder in cardLoader.GetComponentsInChildren<CardBuilder>())
-            {
-                cardBuilder.BuildCards();
-            }
         }
 
         void Start()
@@ -123,6 +117,11 @@ namespace WillsWackyManagers
             GameModeManager.AddHook(GameModeHooks.HookPickStart, PickStart);
             GameModeManager.AddHook(GameModeHooks.HookGameEnd, GameEnd);
 
+            GameObject cardLoader = WWMAssets.LoadAsset<GameObject>("WWM CardManager");
+            foreach (CardBuilder cardBuilder in cardLoader.GetComponentsInChildren<CardBuilder>())
+            {
+                cardBuilder.BuildCards();
+            }
 
             //CustomCard.BuildCard<TableFlip>((cardInfo) => { RerollManager.instance.tableFlipCard = cardInfo; });
             //CustomCard.BuildCard<Reroll>((cardInfo) => { RerollManager.instance.rerollCard = cardInfo; });

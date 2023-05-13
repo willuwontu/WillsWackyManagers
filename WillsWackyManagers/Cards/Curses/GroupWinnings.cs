@@ -20,7 +20,7 @@ namespace WillsWackyManagers.Cards.Curses
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             ModdingUtils.Extensions.CardInfoExtension.GetAdditionalData(cardInfo).canBeReassigned = false;
-            cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory };
+            cardInfo.categories = new CardCategory[] { CurseManager.instance.curseCategory, CustomCardCategories.instance.CardCategory("handSizeManipulation") };
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} Built");
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
