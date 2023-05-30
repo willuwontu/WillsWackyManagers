@@ -8,6 +8,11 @@ Provides 2 different managers for the community to use:
 <summary>Change log</summary>
 
 ----
+### v 1.5.10
+
+- Fixed an issue where checking if a curse was allowed would set a player to be allowed to draw curses.
+
+----
 ### v 1.5.0
 - Cards are now built in Unity.
 - Rarities moved to rarity bundle.

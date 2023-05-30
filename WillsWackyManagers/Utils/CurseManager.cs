@@ -118,6 +118,11 @@ namespace WillsWackyManagers.Utils
 
         private bool CanDrawCursesCondition(Player player, CardInfo card)
         {
+            if (!card)
+            {
+                return true;
+            }
+
             if (!curses.Contains(card))
             {
                 return true;
@@ -324,12 +329,13 @@ namespace WillsWackyManagers.Utils
 
             bool canDraw = CurseManager.instance.CanPlayerDrawCurses(player);
             CurseManager.instance.PlayerCanDrawCurses(player, true);
+            bool allowed = ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card);
+            CurseManager.instance.PlayerCanDrawCurses(player, canDraw);
 
-            if (ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card))
+            if (allowed)
             {
                 return true;
             }
-            CurseManager.instance.PlayerCanDrawCurses(player, canDraw);
 
             return false;
         }
@@ -998,6 +1004,8 @@ namespace WillsWackyManagers.Utils
             {
                 WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Building a dictionary caused an error.");
             }
+
+            canDrawCurses = new Dictionary<Player, bool>();
 
             yield break;
         }
