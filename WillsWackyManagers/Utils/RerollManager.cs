@@ -534,12 +534,8 @@ namespace WillsWackyManagers.Utils
                     {
                         var rarity = cardRarities[i];
                         var originalCard = originalCards[i];
-                        bool couldDraw = false;
-                        if (rarity.isCurse)
-                        {
-                            couldDraw = CurseManager.instance.CanPlayerDrawCurses(player);
-                            CurseManager.instance.PlayerCanDrawCurses(player);
-                        }
+                        bool couldDraw = CurseManager.instance.CanPlayerDrawCurses(player);
+                        CurseManager.instance.PlayerCanDrawCurses(player);
 
                         WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Checking player {player.playerID} to see if they are able to have a card added.");
                         WillsWackyManagers.instance.DebugLog($"[WWM][Debugging] Player {player.playerID} is able to have a card added.");
@@ -554,10 +550,7 @@ namespace WillsWackyManagers.Utils
                             //ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card);
                         }
 
-                        if (rarity.isCurse)
-                        {
-                            CurseManager.instance.PlayerCanDrawCurses(player, couldDraw);
-                        }
+                        CurseManager.instance.PlayerCanDrawCurses(player, couldDraw);
                     }
                     catch (Exception e)
                     {

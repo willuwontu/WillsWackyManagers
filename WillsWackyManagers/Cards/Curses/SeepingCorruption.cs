@@ -47,14 +47,13 @@ namespace WillsWackyManagers.Cards.Curses
             }
             else
             {
+                UnityEngine.Debug.Log($"[WWM][{nameof(SeepingCorruption)}] Setting Player {player.playerID} to be able to draw curses.");
                 CurseManager.instance.PlayerCanDrawCurses(player, true);
             }
             WillsWackyManagers.instance.DebugLog($"[{WillsWackyManagers.ModInitials}][Curse] {GetTitle()} added to Player {player.playerID}");
         }
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-            CurseManager.instance.PlayerCanDrawCurses(player, false);
-
             foreach (var kvp in rarityAdjustment)
             {
                 if (kvp.Key.data.view.IsMine || Photon.Pun.PhotonNetwork.OfflineMode)

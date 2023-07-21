@@ -14,6 +14,7 @@ using WillsWackyManagers.UI;
 using ModdingUtils.Patches;
 using System.Collections.ObjectModel;
 using static UnityEngine.EventSystems.EventTrigger;
+using ModdingUtils.Utils;
 
 namespace WillsWackyManagers.Utils
 {
@@ -104,6 +105,7 @@ namespace WillsWackyManagers.Utils
 
         public void PlayerCanDrawCurses(Player player, bool canDraw = true)
         {
+            UnityEngine.Debug.Log($"[WWM][{nameof(PlayerCanDrawCurses)}()] CanDrawCurses for Player {player.playerID} is set to {canDraw}.");
             canDrawCurses[player] = canDraw;
         }
 
@@ -111,8 +113,10 @@ namespace WillsWackyManagers.Utils
         {
             if (canDrawCurses.TryGetValue(player, out bool canDraw))
             {
+                UnityEngine.Debug.Log($"[WWM][{nameof(CanPlayerDrawCurses)}()] Player {player.playerID} {(canDraw ? "is" : "is not")} allowed to draw curses.");
                 return canDraw;
             }
+
             return false;
         }
 
@@ -133,10 +137,15 @@ namespace WillsWackyManagers.Utils
                 return true;
             }
 
+            UnityEngine.Debug.Log($"[WWM][{nameof(CanDrawCursesCondition)}()][{card.cardName}] Checking if player {player.playerID} is allowed to draw curses.");
             if (canDrawCurses.TryGetValue(player, out bool value))
             {
+                UnityEngine.Debug.Log($"[WWM][{nameof(CanDrawCursesCondition)}()][{card.cardName}] Player {player.playerID} {(value ? "is" : "is not")} allowed to draw curses.");
                 return value;
             }
+
+            UnityEngine.Debug.Log($"[WWM][{nameof(CanDrawCursesCondition)}()][{card.cardName}] Player {player.playerID} did not have a value set, defaulting to false.");
+
             return false;
         }
 
@@ -263,14 +272,21 @@ namespace WillsWackyManagers.Utils
         /// <summary>
         /// Returns a random curse from the list of curses, if one exists.
         /// </summary>
-        /// <param name="player">A player for whom the curse has to be valid for.</param>
+        /// <param name="player">A player for whom the curse has to be valid for. Returns null if null.</param>
         /// <param name="condition">A condition for returning a valid curse. If none meet the condition, a random curse will be given instead.</param>
         /// <returns>CardInfo for the generated curse.</returns>
         public CardInfo RandomCurse(Player player, Func<CardInfo, Player, bool> condition)
         {
+            if (!player)
+            {
+                return null;
+            }
+
             CheckCurses();
 
+            UnityEngine.Debug.Log($"[WWM][{nameof(RandomCurse)}()] Checking if Player {player.playerID} was able to draw curses before.");
             bool canDraw = CanPlayerDrawCurses(player);
+            UnityEngine.Debug.Log($"[WWM][{nameof(RandomCurse)}()] Player {player.playerID} {(canDraw ? "was" : "was not")} able to draw curses before.");
             canDrawCurses[player] = true;
 
             var availableCurses = ActiveCurses.Where((card) => ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card) && condition(card, player)).ToArray();
@@ -296,7 +312,9 @@ namespace WillsWackyManagers.Utils
 
             //CardChoice.instance.cards = enabled;
 
+            UnityEngine.Debug.Log($"[WWM][{nameof(RandomCurse)}()] Setting the ability for Player {player.playerID} to draw curses back to {canDraw} ");
             canDrawCurses[player] = canDraw;
+            UnityEngine.Debug.Log($"[WWM][{nameof(RandomCurse)}] canDrawCurses for Player {player.playerID} set to {canDrawCurses[player]}.");
 
             if (!curse || !curses.Contains(curse))
             {
@@ -327,17 +345,16 @@ namespace WillsWackyManagers.Utils
                 return false;
             }
 
+            UnityEngine.Debug.Log($"[WWM][{nameof(PlayerIsAllowedCurse)}()] Checking if Player {player.playerID} is allowed to draw curses.");
             bool canDraw = CurseManager.instance.CanPlayerDrawCurses(player);
+            UnityEngine.Debug.Log($"[WWM][{nameof(PlayerIsAllowedCurse)}()] Player {player.playerID} {(canDraw ? "is" : "is not")} able to draw curses.");
             CurseManager.instance.PlayerCanDrawCurses(player, true);
             bool allowed = ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, card);
+            UnityEngine.Debug.Log($"[WWM][{nameof(PlayerIsAllowedCurse)}()] {card.cardName} {(allowed ? "is" : "is not")} allowed for Player {player.playerID}. Resetting their canDrawCurses to {canDraw}");
             CurseManager.instance.PlayerCanDrawCurses(player, canDraw);
+            UnityEngine.Debug.Log($"[WWM][{nameof(PlayerIsAllowedCurse)}()] canDrawCurses for Player {player.playerID} set to {canDraw}.");
 
-            if (allowed)
-            {
-                return true;
-            }
-
-            return false;
+            return allowed;
         }
 
         private CardInfo FallbackMethod(CardInfo[] availableChoices)
