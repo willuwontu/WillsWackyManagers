@@ -8,6 +8,14 @@ Provides 2 different managers for the community to use:
 <summary>Change log</summary>
 
 ----
+### v 1.5.12
+- Added a toggle to the debug lines, only accessible through unity explorer.
+
+----
+### v 1.5.11
+- Added debug lines to help track down an esoteric bug.
+
+----
 ### v 1.5.10
 
 - Fixed an issue where checking if a curse was allowed would set a player to be allowed to draw curses.
