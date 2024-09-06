@@ -26,12 +26,12 @@ using WillsWackyManagers.Utils;
 namespace WillsWackyManagers
 {
     // These are the mods required for our mod to work
-    [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("root.cardtheme.lib", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("com.CrazyCoders.Rounds.RarityBundle", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("com.willis.rounds.unbound")]
+    [BepInDependency("pykess.rounds.plugins.moddingutils")]
+    [BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch")]
+    [BepInDependency("root.rarity.lib")]
+    [BepInDependency("root.cardtheme.lib")]
+    [BepInDependency("com.CrazyCoders.Rounds.RarityBundle")]
     // Declares our mod to Bepin
     [BepInPlugin(ModId, ModName, Version)]
     // The game our mod is associated with
