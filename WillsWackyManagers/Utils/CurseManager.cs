@@ -230,11 +230,11 @@ namespace WillsWackyManagers.Utils
         {
             UnityEngine.Debug.Log($"Adding a cursed pick for Player {player.playerID}.");
 
-            UnboundLib.GameModes.GameModeManager.AddOnceHook(GameModeHooks.HookPlayerPickEnd, GreedPick);
+            UnboundLib.GameModes.GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, GreedPick);
 
             IEnumerator GreedPick(IGameModeHandler gm)
             {
-                UnityEngine.Debug.Log($"Adding a cursed pick for Player {player.playerID}.");
+                UnityEngine.Debug.Log($"Starting a cursed pick for Player {player.playerID}.");
                 yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
 
                 CursePick = true;
@@ -245,10 +245,12 @@ namespace WillsWackyManagers.Utils
 
                 CursePick = false;
 
+                UnboundLib.GameModes.GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, GreedPick);
+
                 yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
                 yield return new WaitForSecondsRealtime(0.1f);
-                UnityEngine.Debug.Log($"Adding a cursed pick for Player {player.playerID}.");
-                
+                UnityEngine.Debug.Log($"Exiting a cursed pick for Player {player.playerID}.");
+
                 yield break;
             }
         }
