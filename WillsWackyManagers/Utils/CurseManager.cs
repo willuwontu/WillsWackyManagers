@@ -34,6 +34,8 @@ namespace WillsWackyManagers.Utils
 
         private static bool extremeDebugging = true;
 
+        public bool CursePick { get; private set; }
+
         public ReadOnlyCollection<CardInfo> Curses => new ReadOnlyCollection<CardInfo>(curses);
 
         public CardThemeColor.CardThemeColorType CurseGray => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CurseGray", new CardThemeColor() { bgColor = new Color(0.34f, 0f, 0.44f), targetColor = new Color(0.24f, 0.24f, 0.24f) });
@@ -130,6 +132,31 @@ namespace WillsWackyManagers.Utils
             return false;
         }
 
+        private bool CursedPickCondition(Player player, CardInfo card)
+        {
+            if (!CursePick)
+            {
+                return true;
+            }
+
+            if (!card)
+            {
+                return true;
+            }
+
+            if (!curses.Contains(card))
+            {
+                return false;
+            }
+
+            if (!player)
+            {
+                return true;
+            }
+
+            return true;
+        }
+
         private bool CanDrawCursesCondition(Player player, CardInfo card)
         {
             if (!card)
@@ -143,6 +170,11 @@ namespace WillsWackyManagers.Utils
             }
 
             if (!player)
+            {
+                return true;
+            }
+
+            if (CursePick)
             {
                 return true;
             }
@@ -194,11 +226,33 @@ namespace WillsWackyManagers.Utils
             return true;
         }
 
+        public void AddCursedPick(Player player)
+        {
+            UnboundLib.GameModes.GameModeManager.AddOnceHook(GameModeHooks.HookPickEnd, GreedPick);
+
+            IEnumerator GreedPick(IGameModeHandler gm)
+            {
+                CursePick = true;
+
+                yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
+                CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i => PlayerManager.instance.players[i].playerID == player.playerID).First(), true);
+                yield return CardChoice.instance.DoPick(1, player.playerID, PickerType.Player);
+                yield return new WaitForSecondsRealtime(0.1f);
+                yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
+                yield return new WaitForSecondsRealtime(0.1f);
+
+                CursePick = false;
+
+                yield break;
+            }
+        }
+
         private void Start()
         {
             ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(CanDrawCursesCondition);
             ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(CanDrawCurseInteractionCondition);
             ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(CanDrawCurseSpawnerCondition);
+            ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(CursedPickCondition);
             this.ExecuteAfterFrames(50, () =>
             {
                 foreach (var plugin in Chainloader.PluginInfos)
