@@ -32,9 +32,9 @@ namespace WillsWackyManagers.Utils
         private System.Random random = new System.Random();
         private bool deckCustomizationLoaded = false;
 
-        private static bool extremeDebugging = true;
+        private static bool extremeDebugging = false;
 
-        public bool CursePick { get; private set; }
+        public bool CursePick { get; private set; } = false;
 
         public ReadOnlyCollection<CardInfo> Curses => new ReadOnlyCollection<CardInfo>(curses);
 
@@ -228,21 +228,27 @@ namespace WillsWackyManagers.Utils
 
         public void AddCursedPick(Player player)
         {
-            UnboundLib.GameModes.GameModeManager.AddOnceHook(GameModeHooks.HookPickEnd, GreedPick);
+            UnityEngine.Debug.Log($"Adding a cursed pick for Player {player.playerID}.");
+
+            UnboundLib.GameModes.GameModeManager.AddOnceHook(GameModeHooks.HookPlayerPickEnd, GreedPick);
 
             IEnumerator GreedPick(IGameModeHandler gm)
             {
+                UnityEngine.Debug.Log($"Adding a cursed pick for Player {player.playerID}.");
+                yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
+
                 CursePick = true;
 
-                yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
                 CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i => PlayerManager.instance.players[i].playerID == player.playerID).First(), true);
                 yield return CardChoice.instance.DoPick(1, player.playerID, PickerType.Player);
-                yield return new WaitForSecondsRealtime(0.1f);
-                yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
                 yield return new WaitForSecondsRealtime(0.1f);
 
                 CursePick = false;
 
+                yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
+                yield return new WaitForSecondsRealtime(0.1f);
+                UnityEngine.Debug.Log($"Adding a cursed pick for Player {player.playerID}.");
+                
                 yield break;
             }
         }
