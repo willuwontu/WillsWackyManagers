@@ -28,7 +28,7 @@ namespace WillsWackyManagers.Utils
         /// </summary>
         public static CurseManager instance { get; private set; }
         private List<CardInfo> curses = new List<CardInfo>();
-        private List<CardInfo> ActiveCurses => curses.Intersect(CardManager.cards.Values.ToArray().Where((card) => card.enabled).Select(card => card.cardInfo).ToArray()).ToList();
+        private List<CardInfo> ActiveCurses => curses.Intersect(CardManager.cards.Values.ToArray().Where((card) => card.enabled).Select(card => card.cardInfo).ToArray()).Concat(curses.Intersect(ModdingUtils.Utils.Cards.instance.HiddenCards)).ToList();
         private System.Random random = new System.Random();
         private bool deckCustomizationLoaded = false;
 
@@ -38,43 +38,70 @@ namespace WillsWackyManagers.Utils
 
         public ReadOnlyCollection<CardInfo> Curses => new ReadOnlyCollection<CardInfo>(curses);
 
+        public static class CurseThemes
+        {
+            public static CardThemeColor.CardThemeColorType CurseGray => CurseManager.instance.CurseGray;
+            public static CardThemeColor.CardThemeColorType CorruptedRed => CurseManager.instance.CorruptedRed;
+            public static CardThemeColor.CardThemeColorType CursedPink => CurseManager.instance.CursedPink;
+            public static CardThemeColor.CardThemeColorType FoolsGold => CurseManager.instance.FoolsGold;
+            public static CardThemeColor.CardThemeColorType ToxicGreen => CurseManager.instance.ToxicGreen;
+            public static CardThemeColor.CardThemeColorType FallenPurple => CurseManager.instance.FallenPurple;
+            public static CardThemeColor.CardThemeColorType ShitBrown => CurseManager.instance.ShitBrown;
+            public static CardThemeColor.CardThemeColorType FrozenBlue => CurseManager.instance.FrozenBlue;
+            public static CardThemeColor.CardThemeColorType FracturedBlue => CurseManager.instance.FracturedBlue;
+            public static CardThemeColor.CardThemeColorType ObseleteWhite => CurseManager.instance.ObseleteWhite;
+            public static CardThemeColor.CardThemeColorType DefaultWhite => CurseManager.instance.DefaultWhite;
+
+        }
+
+        [Obsolete("Use CardManager.CurseThemes instead")]
         public CardThemeColor.CardThemeColorType CurseGray => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CurseGray", new CardThemeColor() { bgColor = new Color(0.34f, 0f, 0.44f), targetColor = new Color(0.24f, 0.24f, 0.24f) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to DestructiveRed
         /// </summary>
         public CardThemeColor.CardThemeColorType CorruptedRed => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CorruptedRed", new CardThemeColor() { bgColor = new Color32(60,0,0,200), targetColor = new Color32(110,20,20,200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to MagicPink
         /// </summary>
         public CardThemeColor.CardThemeColorType CursedPink => CardThemeLib.CardThemeLib.instance.CreateOrGetType("CursedPink", new CardThemeColor() { bgColor = new Color32(60, 10, 30, 200), targetColor = new Color32(110, 20, 70, 200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to FirepowerYellow
         /// </summary>
         public CardThemeColor.CardThemeColorType FoolsGold => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FoolsGold", new CardThemeColor() { bgColor = new Color32(50, 50, 10, 200), targetColor = new Color32(110, 110, 20, 200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to PoisonGreen
         /// </summary>
         public CardThemeColor.CardThemeColorType ToxicGreen => CardThemeLib.CardThemeLib.instance.CreateOrGetType("ToxicGreen", new CardThemeColor() { bgColor = new Color32(0, 40, 0, 200), targetColor = new Color32(20, 100, 20, 200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to EvilPurple
         /// </summary>
         public CardThemeColor.CardThemeColorType FallenPurple => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FallenPurple", new CardThemeColor() { bgColor = new Color32(50, 10, 50, 200), targetColor = new Color32(110, 20, 110, 200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to NatureBrown
         /// </summary>
         public CardThemeColor.CardThemeColorType ShitBrown => CardThemeLib.CardThemeLib.instance.CreateOrGetType("ShitBrown", new CardThemeColor() { bgColor = new Color32(50, 40, 0, 200), targetColor = new Color32(110, 90, 20, 200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to ColdBlue
         /// </summary>
         public CardThemeColor.CardThemeColorType FrozenBlue => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FrozenBlue", new CardThemeColor() { bgColor = new Color32(0, 40, 50, 200), targetColor = new Color32(20, 90, 110, 200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to FracturedBlue
         /// </summary>
         public CardThemeColor.CardThemeColorType FracturedBlue => CardThemeLib.CardThemeLib.instance.CreateOrGetType("FracturedBlue", new CardThemeColor() { bgColor = new Color32(0, 0, 50, 200), targetColor = new Color32(20, 20, 110, 200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to TechWhite
         /// </summary>
         public CardThemeColor.CardThemeColorType ObseleteWhite => CardThemeLib.CardThemeLib.instance.CreateOrGetType("ObseleteWhite", new CardThemeColor() { bgColor = new Color32(40, 40, 40, 200), targetColor = new Color32(110, 110, 110, 200) });
+        [Obsolete("Use CardManager.CurseThemes instead")]
         /// <summary>
         /// Counterpart to DefaultBlack
         /// </summary>
